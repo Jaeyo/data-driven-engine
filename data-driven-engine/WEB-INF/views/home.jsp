@@ -6,269 +6,110 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>clien stream</title>
+<title>data driven engine</title>
 
-<!-- 
-<link href="<c:url value="/resource/css/bootstrap.css" />" rel="stylesheet">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script src="<c:url value="/resource/js/bootstrap.min.js" /> "></script>
- -->
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://code.interactjs.io/interact-1.2.4.min.js"></script>
 
-<link href="http://ironsummitmedia.github.io/startbootstrap-simple-sidebar/css/bootstrap.min.css" rel="stylesheet">
-<link href="http://ironsummitmedia.github.io/startbootstrap-simple-sidebar/css/simple-sidebar.css" rel="stylesheet">
+<style>
+.component-menu {
+	width : 10%;
+	height : 10%;
+	min-height : 6.5em;
+	margin : 0px;
+	background-color : #29e;
+	color : white;
+	border-radius : 0.75em;
+	padding : 4%;
+	float : left;
+}
+.dragable{
+	-webkit-transform : translate(0px, 0px);
+	transform : translate(0px, 0px);
+}
 
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+.dragable-not-drop{
+	-webkit-transform : translate(0px, 0px);
+	transform : translate(0px, 0px);
+}
+</style>
 
 </head>
 <body>
 
-	<div id="wrapper">
-	
-		<!-- page content -->
-		<div id="page-content-wrapper">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-lg-12">
-						<h1>${bbsName }</h1>
-						<br />
-					</div>
-				</div>
-				
-				<div id="fixed_contents"></div>
-				
-				<input type="button" class="form-control" value="새로운 글이 0건 있습니다." id="newItemCount" onclick="javascript:view.showNewItems()" />
-				
-				<hr>
-				
-				<div id="contents"></div>
-				
-				<div id="articleView"></div>
-			</div>
-		</div>
-		<!-- //page content -->
-		
-	</div>
+<div class="component-menu dragable">add component</div>
+<div class="component-menu dragable-not-drop">add filter</div>
 
-<script src="http://ironsummitmedia.github.io/startbootstrap-simple-sidebar/js/jquery.js"></script>
-<script src="http://ironsummitmedia.github.io/startbootstrap-simple-sidebar/js/bootstrap.min.js"></script>
-<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-<script src="<c:url value="/resource/js/home.js?ver=27" /> "></script>
 <script type="text/javascript">
 var controller;
-var wsController;
-var view;
-var model;
+var ui;
+var data;
 
-function Controller(){
-	this.getFixedBbsItems=function(){
-		$.ajax({
-			url : "http://${pageContext.request.serverName}:${webPort}/${contextName}/getFixedBbsItem/" + model.bbsName,
-			type : "get",
-			success : function(data){
-				if(data.success==0){
-					console.log("getFixedBbsItem success");
-					console.error("failed to get fixedBbsItems for " + model.bbsName);
-					return;
-				} //if
-				console.log("get fixedBbsItems : " + data.count);
-				
-				if(data.count==0)
-					return;
-				
-				var items=data.data;
-				var fixedContentsArea=$("#fixed_contents");
-					
-				fixedContentsArea.html("");
-				for(i=0; i<items.length; i++){
-					itemDOM=bbsUtil.objToHtml(items[i]);
-					bbsUtil.registerClickEvent(itemDOM, view, controller, model.afterClickColor);
-					fixedContentsArea.append(itemDOM);
-				} //for i
-			}, //success
-			error : function(e){
-				console.error("getFixedBbsItem failed");
-				console.error(e);
-			}, //error
-			dataType : "json",
-			cache : "false"
-		});
-	} //getFixedBbsItems
+function Controller() {
 	
-	this.putFixedBbsItem=function(itemDOM, num){
-		$.ajax({
-			url : "http://${pageContext.request.serverName}:${webPort}/${contextName}/putFixedBbsItem/" + model.bbsName + "/" + num,
-			type : "get",
-			success : function(data){
-				console.log("putFixedBbsItem success for " + num);
-				$("#fixed_contents").append($(itemDOM));
-				itemDOM.remove();
-			}, //success
-			error : function(e){
-				console.error("putFixedBbsItem failed for " + num);
-				console.error(e);
-			}, //error
-			dataType : "json",
-			cache : "false"
-		});
-	} //putFixedBbsItem
-	
-	this.removeFixedBbsItem=function(num){
-		$.ajax({
-			url : "http://${pageContext.request.serverName}:${webPort}/${contextName}/removeFixedBbsItem/" + model.bbsName + "/" + num,
-			type : "get",
-			success : function(data){
-				console.log("removeFixedBbsItem success for " + num);
-				console.log(data);
-			}, //success
-			error : function(e){
-				console.error("removeFixedBbsItem failed for "  + num);
-				console.error(e);
-			}, //error
-			dataType : "json",
-			cache : "false"
-		});
-	} //removeFixedBbsItem
-} //Controller
+}; //Controller
+controller = new Controller();
 
-function WsController(){
-	this.socket=new WebSocket("ws://${pageContext.request.serverName}:${wsPort}/websocket/ws/server/${wsPort}")
-	
-	this.socket.onopen=function(){
-		console.log("[WebSocket->onopen]");
-	} //onopen
-	
-	this.socket.onmessage=function(e){
-		console.log("[WebSocket->onmessage] ");
-		var itemObj=JSON.parse(e.data);
-		model.storeNewItem(itemObj);
-	} //onmessage
-	
-	this.socket.onclose=function(){
-		console.log("[WebSocket->onclose]");
-	} //onclose
-	
-	this.requestMsging=function(){
-		jsonMsg=new Object();
-		jsonMsg.bbsName=model.bbsName;
-		this.waitForSocketConnection(function(){
-			wsController.socket.send(JSON.stringify(jsonMsg));
-		});
-	} //requestMsging
-	
-	this.stop=function(){
-		this.socket.close();
-	} //stop
-	
-	this.waitForSocketConnection=function(callback){
-		setTimeout(function(){
-			if(wsController.socket.readyState==WebSocket.OPEN){
-				console.log("connection is made");
-				if(callback!=null)
-					callback();
-			} else{
-				console.log("wait for connection");
-				wsController.waitForSocketConnection(callback);
-			} //if
-		}, 100);
-	} //waitForSocketConnection	
-} //WsController
-
-
-
-function View(){
-	this.showNewItems=function(){
-		var newItemCount=model.newItemArr.length;
-		if(newItemCount==0)
-			return;
+function UI() {
+	this.dragMoveListener = function(event){
+		var target = event.target;
+		x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+		y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 		
-		var reversedNewItemArr=[];
-		for(i=0; i<newItemCount; i++){
-			reversedNewItemArr.push(model.newItemArr.pop());
-		} //for i
+		target.style.webkitTransform = 
+		target.style.transform = 
+			'translate(' + x + 'px, ' + y + 'px)';
 		
-		newItemCount=reversedNewItemArr.length;
-		for(i=0; i<newItemCount; i++){
-			var newItemObj=reversedNewItemArr[i];
-			var newItemDOM=bbsUtil.objToHtml(newItemObj);
-			bbsUtil.registerClickEvent(newItemDOM, view, controller, model.afterClickColor);
-			
-			newItemDOM.hide();
-			$("#contents").append(newItemDOM);
-			newItemDOM.show("300");
-		} //for i
+		target.setAttribute('data-x', x);
+		target.setAttribute('data-y', y);
+	} //dragMoveListener
+	
+	this.moveToStartPointListener = function(event){
+		var target = event.target;
+		target.style.webkitTransform = 
+		target.style.transform = 
+			'translate(0px, 0px)';
 		
-		view.refreshNewItemCount();
-		view.removeOldItem();
-	} //showNewItems
+		target.setAttribute('data-x', 0);
+		target.setAttribute('data-y', 0);
+	} //moveToStartPointListener
 	
-	this.removeOldItem=function(){
-		var itemArr=$("#contents").find("div.bbsItem");
-		if(itemArr.length<model.maxItemCount) 
-			return;
-		
-		var removeCount=itemArr.length-model.maxItemCount;
-		for(i=0; i<removeCount; i++){
-			$(itemArr[itemArr.length-1]).remove();
-			itemArr.splice(itemArr.length-1, 1);
-		} //for i
-	} //removeOldItem
-	
-	this.refreshNewItemCount=function(){
-		var count=model.newItemArr.length;
-		var newItemCountDOM=$("#newItemCount");
-		newItemCountDOM.attr("value", "새로운 글이 " + count + "건 있습니다.");
-		if(count!=0){
-			newItemCountDOM.css("background-color", model.clienBlue).css("color", "white");
-		} else{
-			newItemCountDOM.css("background-color", "white").css("color", model.clienBlue);
-		} //if
-	} //refreshNewItemCount
-	
-	this.viewArticle=function(bbsName, num, title){
-		var url= "http://www.clien.net/cs2/bbs/board.php?bo_table=" + bbsName + "&wr_id=" + num;
-		var articleView=$("#articleView").html("");
-		articleView.show(100).append(homeUtil.getObjectEmbedNode(url, 780, 580)).dialog({
-			close: function(event, ui){
-				articleView.hide().html("");
+	this.applyDragDrop = function(querySelectorWord){
+		interact(querySelectorWord).draggable({
+			inertia : true,
+			restrict : {
+				restriction : 'parent',
+				endOnly : true,
+				elementRect : { top : 0, left : 0, bottom : 1, right : 1}
 			},
-			title: title,
-			resizable: false,
-			height: 600, 
-			width: 800,
-			open: function(event, ui){
-				articleView.css("overflow", "hidden");
-			} //open
+			onmove : ui.dragMoveListener
 		});
-	} //viewArticle
-} //View
-
-
-
-function Model(){
-	this.newItemArr=[];
-	this.afterClickColor="rgb(230, 230, 230)";
-	this.clienBlue="rgb(55, 66, 155)";
-	this.maxItemCount=17;
-	this.bbsName="${bbsName}";
+	} //applyDragDrop
 	
-	this.storeNewItem=function(itemObj){
-		model.newItemArr.push(itemObj);
-		view.refreshNewItemCount();
-	} //storeNewItem
-} //Model
+	this.applyDragNotDrop = function(querySelectorWord){
+		interact(querySelectorWord).draggable({
+			inertia : true,
+			restrict : {
+				restriction : 'parent',
+				endOnly : true,
+				elementRect : { top : 0, left : 0, bottom : 1, right : 1}
+			},
+			onmove : ui.dragMoveListener,
+			onend : ui.moveToStartPointListener
+		});
+	} //appliDragNotDrop
+}; //UI
+ui = new UI();
 
-controller=new Controller();
-wsController=new WsController();
-view=new View();
-model=new Model();
+function Data() {
+	
+}; //Data
+data = new Data();
+
+//INIT ----
+ui.applyDragDrop('.dragable');
+ui.applyDragNotDrop('.dragable-not-drop');
+
 </script>
-
-<script type="text/javascript">
-$("#preparedItemCount").css("color", model.clienBlue);
-
-wsController.requestMsging();
-controller.getFixedBbsItems();
-</script>
-
 </body>
 </html>
