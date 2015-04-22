@@ -58,8 +58,9 @@ data = new Data();
 
 //INIT ----
 jsPlumb.ready(function() {
-	firstInstance = jsPlumb.getInstance();
-	firstInstance.draggable($(".component-menu"));
+	jsPlumb.draggable(jsPlumb.getSelector(".component-menu"), { grid : [20, 20] });
+	jsPlumb.addEndpoint(jsPlumb.getSelector(".component-menu"))
+	jsPlumb.connect({source : "componentDiv", target : "filterDiv"});
 });
 </script>
 </body>
