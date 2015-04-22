@@ -1,0 +1,66 @@
+<!--  
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+-->
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>data driven engine</title>
+
+<!--  script src="http://code.jquery.com/jquery-1.11.2.min.js"></script -->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+<script src="http://jsplumbtoolkit.com/js/dom.jsPlumb-1.7.5-min.js"></script>
+
+<style>
+.component-menu {
+	width : 10%;
+	height : 10%;
+	min-height : 6.5em;
+	margin : 0px;
+	background-color : #29e;
+	color : white;
+	border-radius : 0.75em;
+	padding : 4%;
+	float : left;
+	position : absolute;
+}
+</style>
+
+</head>
+<body>
+
+<div id="componentDiv" class="component-menu">add component</div>
+<div id="filterDiv" class="component-menu">add filter</div>
+
+<script type="text/javascript">
+var controller;
+var ui;
+var data;
+
+var firstInstance;
+
+function Controller() {
+}; //Controller
+controller = new Controller();
+
+function UI() {
+}; //UI
+ui = new UI();
+
+function Data() {
+}; //Data
+data = new Data();
+
+//INIT ----
+jsPlumb.ready(function() {
+	firstInstance = jsPlumb.getInstance();
+	firstInstance.draggable($(".component-menu"));
+});
+</script>
+</body>
+</html>
