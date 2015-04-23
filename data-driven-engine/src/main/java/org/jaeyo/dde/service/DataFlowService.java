@@ -38,7 +38,7 @@ public class DataFlowService {
 	} //stopComponent
 	
 	public void createNewConnection(String source, String target) throws NotExistsException, InvalidOperationException{
-		dataFlow.addConnection(UUID.fromString(source), UUID.fromString(target));
+		dataFlow.connect(UUID.fromString(source), UUID.fromString(target));
 	} //createNewConnection
 	
 	public JSONObject getDataFlowMap(){

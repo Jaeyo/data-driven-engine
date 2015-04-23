@@ -37,7 +37,7 @@ public class Dataflow{
 		getProcessorComponent(id).stop();
 	} //stopComponent
 	
-	public void addConnection(UUID source, UUID target) throws NotExistsException, InvalidOperationException{
+	public ConnectionQueue connect(UUID source, UUID target) throws NotExistsException, InvalidOperationException{
 		Output sourceComponent = getOutComponent(source);
 		Input targetComponent = getInComponent(target);
 		
@@ -45,6 +45,8 @@ public class Dataflow{
 		
 		sourceComponent.addOutputConnection(conn);
 		targetComponent.addInputConnection(conn);
+		
+		return conn;
 	} //addConnection
 	
 	public JSONObject getDataFlowMapJson(){
@@ -101,7 +103,7 @@ public class Dataflow{
 		return (Output)component;
 	} //getInComponent
 	
-	private Component getComponent(UUID id) throws NotExistsException{
+	public Component getComponent(UUID id) throws NotExistsException{
 		Component component = components.get(id);
 		
 		try {

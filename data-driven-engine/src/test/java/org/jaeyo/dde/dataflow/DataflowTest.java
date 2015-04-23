@@ -8,9 +8,13 @@ import org.jaeyo.dde.common.ReflectionUtil;
 import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.dataflow.component.conngroup.InputConnectionGroup;
 import org.jaeyo.dde.dataflow.component.conngroup.OutputRouter;
+import org.jaeyo.dde.dataflow.component.processor.Output;
+import org.jaeyo.dde.dataflow.component.processor.Processor;
 import org.jaeyo.dde.dataflow.component.processor.impl.ConsolePrinter;
 import org.jaeyo.dde.dataflow.component.processor.impl.FileReader;
 import org.jaeyo.dde.dataflow.component.processor.impl.SimpleDeliver;
+import org.jaeyo.dde.exception.InvalidOperationException;
+import org.jaeyo.dde.exception.NotExistsException;
 import org.junit.Test;
 
 public class DataflowTest {
@@ -31,11 +35,37 @@ public class DataflowTest {
 			dataflow.addComponent(comp2);
 			dataflow.addComponent(comp3);
 
-			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getComponent", Component.class, comp1Id).equals(comp1));
-			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getComponent", Component.class, comp2Id).equals(comp2));
-			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getComponent", Component.class, comp3Id).equals(comp3));
+			assertTrue(dataflow.getComponent(comp1Id).equals(comp1));
+			assertTrue(dataflow.getComponent(comp2Id).equals(comp2));
+			assertTrue(dataflow.getComponent(comp3Id).equals(comp3));
 			
-			TODO IMME
+			try{
+				dataflow.getComponent(UUID.randomUUID()).equals(comp3);
+				fail();
+			} catch(NotExistsException e){}
+			
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getProcessorComponent", Processor.class, comp1Id).equals(comp1));
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getProcessorComponent", Processor.class, comp2Id).equals(comp2));
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getProcessorComponent", Processor.class, comp3Id).equals(comp3));
+			
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getOutComponent", Output.class, comp1Id).equals(comp1));
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getOutComponent", Output.class, comp2Id).equals(comp2));
+			try{
+				assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getOutComponent", Output.class, comp3Id).equals(comp3));
+				fail();
+			} catch(Exception e){
+				assertTrue(e.getCause().getCause().getClass().getSimpleName().equals(InvalidOperationException.class.getSimpleName()));
+			} //catch
+			
+			try{
+				assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getInComponent", Processor.class, comp1Id).equals(comp1));
+				fail();
+			} catch(Exception e){
+				assertTrue(e.getCause().getCause().getClass().getSimpleName().equals(InvalidOperationException.class.getSimpleName()));
+			} //catch
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getInComponent", Processor.class, comp2Id).equals(comp2));
+			assertTrue(ReflectionUtil.invokePrivateMethod(dataflow, Dataflow.class, "getInComponent", Processor.class, comp3Id).equals(comp3));
+			
 		} catch(Exception e){
 			e.printStackTrace();
 			fail();
