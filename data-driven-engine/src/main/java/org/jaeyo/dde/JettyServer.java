@@ -17,14 +17,14 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class JettyServer {
 	private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
 	
-	public static final String MVC_CONTEXT_NAME = "clien";
+	public static final String MVC_CONTEXT_NAME = "";
 
 	private Server server;
 
 	public void start() {
 		try {
 			enableJstl();
-			int port = Integer.parseInt(Conf.get(Conf.PORT));
+			int port = Conf.getAs(Conf.PORT);
 			server = new Server(port);
 //			server.setHandler(getServletHandler()); 
 			server.setHandler(getWebAppContext());

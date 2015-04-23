@@ -8,12 +8,11 @@ import org.jaeyo.dde.event.Event;
 
 import com.google.common.collect.Queues;
 
-public class MemoryConnectionQueue implements ConnectionQueue{
+public class MemoryConnectionQueue extends ConnectionQueue{
 	private LinkedBlockingQueue<Event> queue = Queues.newLinkedBlockingQueue();
-	private UUID id;
 	
-	public MemoryConnectionQueue(UUID id) {
-		this.id = id;
+	public MemoryConnectionQueue(UUID id, UUID source, UUID target) {
+		super(id, source, target);
 	} //INIT
 
 	@Override

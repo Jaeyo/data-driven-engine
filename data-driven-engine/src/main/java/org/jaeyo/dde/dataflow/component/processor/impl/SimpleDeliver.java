@@ -1,18 +1,18 @@
-package org.jaeyo.dde.processor.impl;
+package org.jaeyo.dde.dataflow.component.processor.impl;
 
 import java.util.Properties;
 import java.util.UUID;
 
+import org.jaeyo.dde.dataflow.component.conngroup.InputConnectionGroup;
+import org.jaeyo.dde.dataflow.component.conngroup.OutputRouter;
+import org.jaeyo.dde.dataflow.component.processor.InOutProcessor;
 import org.jaeyo.dde.event.Event;
 import org.jaeyo.dde.exception.NoAvailableOutputException;
-import org.jaeyo.dde.processor.InOutProcessor;
-import org.jaeyo.dde.processor.InputConnectionGroup;
-import org.jaeyo.dde.processor.OutputRouter;
 
 public class SimpleDeliver extends InOutProcessor {
 
-	public SimpleDeliver(UUID id, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
-		super(id, inputGroup, outputRouter);
+	public SimpleDeliver(UUID id, int x, int y, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
+		super(id, x, y, inputGroup, outputRouter);
 	} //INIT
 
 	@Override
@@ -36,5 +36,10 @@ public class SimpleDeliver extends InOutProcessor {
 
 	@Override
 	public void config(Properties config) {
+	}
+
+	@Override
+	public String getComponentType() {
+		return getClass().getSimpleName();
 	}
 }

@@ -1,16 +1,15 @@
-package org.jaeyo.dde.processor.impl;
+package org.jaeyo.dde.dataflow.component.processor.impl;
 
 import java.util.Properties;
 import java.util.UUID;
 
+import org.jaeyo.dde.dataflow.component.conngroup.InputConnectionGroup;
+import org.jaeyo.dde.dataflow.component.processor.InProcessor;
 import org.jaeyo.dde.event.Event;
-import org.jaeyo.dde.processor.InProcessor;
-import org.jaeyo.dde.processor.InputConnectionGroup;
 
 public class ConsolePrinter extends InProcessor{
-
-	public ConsolePrinter(UUID id, InputConnectionGroup inputGroup) {
-		super(id, inputGroup);
+	public ConsolePrinter(UUID id, int x, int y, InputConnectionGroup inputGroup) {
+		super(id, x, y, inputGroup);
 	}
 
 	@Override
@@ -31,5 +30,10 @@ public class ConsolePrinter extends InProcessor{
 	@Override
 	public void config(Properties config) {
 		
+	}
+
+	@Override
+	public String getComponentType() {
+		return getClass().getSimpleName();
 	}
 } //class

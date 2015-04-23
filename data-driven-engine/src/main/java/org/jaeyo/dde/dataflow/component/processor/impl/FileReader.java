@@ -1,4 +1,4 @@
-package org.jaeyo.dde.processor.impl;
+package org.jaeyo.dde.dataflow.component.processor.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,16 +8,16 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.jaeyo.dde.common.Util;
+import org.jaeyo.dde.dataflow.component.conngroup.OutputRouter;
+import org.jaeyo.dde.dataflow.component.processor.OutProcessor;
 import org.jaeyo.dde.event.Event;
 import org.jaeyo.dde.exception.NoAvailableOutputException;
-import org.jaeyo.dde.processor.OutProcessor;
-import org.jaeyo.dde.processor.OutputRouter;
 
 public class FileReader extends OutProcessor{
 	private BufferedReader reader;
 
-	public FileReader(UUID id, OutputRouter outputRouter) {
-		super(id, outputRouter);
+	public FileReader(UUID id, int x, int y, OutputRouter outputRouter) {
+		super(id, x, y, outputRouter);
 	}
 
 	@Override
@@ -59,4 +59,8 @@ public class FileReader extends OutProcessor{
 	public void config(Properties config) {
 	}
 
+	@Override
+	public String getComponentType() {
+		return getClass().getSimpleName();
+	}
 }

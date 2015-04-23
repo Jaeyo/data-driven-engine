@@ -1,17 +1,19 @@
-package org.jaeyo.dde.processor;
+package org.jaeyo.dde.dataflow.component.processor;
 
 import java.util.Properties;
 import java.util.UUID;
 
+import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.exception.AlreadyStartedException;
 import org.jaeyo.dde.exception.AlreadyStoppedException;
 
-abstract class Processor {
+public abstract class Processor extends Component{
 	private Thread worker;
 	private boolean isRunning = false;
 	private UUID id;
 
-	public Processor(UUID id) {
+	public Processor(UUID id, int x, int y) {
+		super(x, y);
 		this.id = id;
 	} //INIT
 

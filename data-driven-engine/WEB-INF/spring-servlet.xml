@@ -14,21 +14,12 @@
 
 	<mvc:annotation-driven />
 
-	<context:component-scan base-package="org.jaeyo.clien_stream.controller" />
-	<context:component-scan base-package="org.jaeyo.clien_stream.service" />
-	<context:component-scan base-package="org.jaeyo.clien_stream.common" />
-	<context:component-scan base-package="org.jaeyo.clien_stream.repo" />
-	<!--  context:component-scan base-package="org.jaeyo.clien_stream.repo.mongodb" / -->
+	<context:component-scan base-package="org.jaeyo.dde.dataflow" />
+	<context:component-scan base-package="org.jaeyo.dde.dataflow.component" />
+	<context:component-scan base-package="org.jaeyo.dde.service" />
+	<context:component-scan base-package="org.jaeyo.dde.controller" />
 	
-	<!--
-	<context:component-scan base-package="org.lasti.PresentationChat.common" />
-	  -->
-
 	<mvc:resources location="/resource/" mapping="/resource/**" />
-	
-	<!-- bean id="serverBean" class="org.lasti.mwmanager.bean.ServerBean" /-->
-	
-	<mvc:annotation-driven /> 
 	
 	<bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
         <property name="prefixJson" value="false"/>

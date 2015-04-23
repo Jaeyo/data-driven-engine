@@ -10,7 +10,7 @@ public class App {
 	public static void main(String[] args) throws InterruptedException {
 		logger.info("started");
 		
-		Conf.set(Conf.PORT, "1234");
+		Conf.set(Conf.PORT, 1234);
 	
 		JettyServer jetty=new JettyServer();
 		jetty.start();

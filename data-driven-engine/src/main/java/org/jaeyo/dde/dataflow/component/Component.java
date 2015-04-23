@@ -1,6 +1,12 @@
 package org.jaeyo.dde.dataflow.component;
 
+import java.util.UUID;
+
+import org.json.JSONObject;
+
 public abstract class Component {
+	public static final String DEFAULT_TAG = "default_tag";
+	
 	private int x;
 	private int y;
 
@@ -24,4 +30,11 @@ public abstract class Component {
 	public void setY(int y) {
 		this.y = y;
 	}
+	
+	public JSONObject getJson(){
+		return new JSONObject().put("id", getId().toString()).put("type", getComponentType());
+	} //getJson
+	
+	public abstract UUID getId();
+	public abstract String getComponentType();
 }
