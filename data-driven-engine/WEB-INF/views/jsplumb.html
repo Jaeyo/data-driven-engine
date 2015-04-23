@@ -57,10 +57,22 @@ function Data() {
 data = new Data();
 
 //INIT ----
+var instance;
 jsPlumb.ready(function() {
-	jsPlumb.draggable(jsPlumb.getSelector(".component-menu"), { grid : [20, 20] });
-	jsPlumb.addEndpoint(jsPlumb.getSelector(".component-menu"))
-	jsPlumb.connect({source : "componentDiv", target : "filterDiv"});
+	instance = jsPlumb.getInstance({
+		ConnectionOverlays: [
+		                     [ "Arrow", { location: 1 } ],
+		                     [ "Label", {
+		                         location: 0.1,
+		                         id: "label",
+		                         cssClass: "aLabel"
+		                     }]
+		                 ]
+	});
+	
+	instance.draggable($(".component-menu"), { grid : [20, 20] });
+	
+	instance.connect({ source : $("#componentDiv"), target : $("#filterDiv"), detachable : false}, {anchors : ["RightMiddle", "LeftMiddle"]});
 });
 </script>
 </body>
