@@ -14,7 +14,10 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+<!--  
 <script src="http://jsplumbtoolkit.com/js/dom.jsPlumb-1.7.5-min.js"></script>
+-->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
 
 <style>
 .component-menu {
@@ -56,21 +59,42 @@ function Data() {
 }; //Data
 data = new Data();
 
+var dragUI;
+var dragEvent;
+var stopUI;
+var stopEvent;
 //INIT ----
 var instance;
 jsPlumb.ready(function() {
 	instance = jsPlumb.getInstance({
 		ConnectionOverlays: [
-		                     [ "Arrow", { location: 1 } ],
-		                     [ "Label", {
-		                         location: 0.1,
-		                         id: "label",
-		                         cssClass: "aLabel"
-		                     }]
-		                 ]
+			[ "Arrow", { location: 1 } ],
+			[ "Label", {
+				location: 0.1,
+				id: "label",
+				cssClass: "aLabel"
+			}]
+		]
 	});
 	
-	instance.draggable($(".component-menu"), { grid : [20, 20] });
+	instance.draggable($(".component-menu"), { 
+		grid : [20, 20],
+		drag : function(event, ui){
+			dragUI = ui; 
+			dragEvent = event;
+			console.log('drag');
+		},
+		stop : function(event, ui){
+			stopUI = ui; 
+			stopEvent = event;
+			console.log('stop');
+			instance.repaint($(this));
+		}, 
+		revert : function(socketObj){
+			console.log('revert');
+			return true;
+		}
+	});
 	
 	instance.connect({ source : $("#componentDiv"), target : $("#filterDiv"), detachable : false}, {anchors : ["RightMiddle", "LeftMiddle"]});
 });
