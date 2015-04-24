@@ -20,13 +20,41 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
 
 <style>
+html, body, .container {
+	height: 100%;
+	width: 100%
+}
+
+.component-menu-container {
+	width: 100%;
+	height: 30%;
+	background-color: rgb(194, 194, 194);
+}
+
+.component-container {
+	width: 100%;
+	height: 70%;
+	background-color: rgb(230, 230, 230);
+}
+
 .component-menu {
 	width : 10%;
-	height : 10%;
-	min-height : 6.5em;
+	height : 5%;
 	margin : 0px;
-	background-color : #29e;
-	color : white;
+	background-color : rgb(184, 222, 209);
+	color : black;
+	border-radius : 0.75em;
+	padding : 4%;
+	float : left;
+	position : absolute;
+}
+
+.component {
+	width : 10%;
+	height : 5%;
+	margin : 0px;
+	background-color : rgb(157, 210, 193);
+	color : black;
 	border-radius : 0.75em;
 	padding : 4%;
 	float : left;
@@ -37,13 +65,22 @@
 </head>
 <body>
 
-<div id="componentDiv" class="component-menu">add component</div>
-<div id="filterDiv" class="component-menu">add filter</div>
+<div class="container">
+	<div class="component-menu-container">
+		<br />
+		<div id="addComponentDiv" class="component-menu">add component</div>
+	</div>
+	<div id="componentContainerDiv" class="component-container">
+		<br />
+	</div>
+</div>
+
 
 <script type="text/javascript">
 var controller;
-var ui;
+var view;
 var data;
+var util;
 
 var firstInstance;
 
@@ -51,22 +88,49 @@ function Controller() {
 }; //Controller
 controller = new Controller();
 
-function UI() {
+function View() {
+	this.componentContainerDiv = $("#componentContainerDiv");
+	
+	this.jsPlumbInstance;
+	
+	this.addComponent = function(x, y){
+		var componentDOM = $('<div class="component">component</div>');
+		componentDOM.css({ left : x, top : y });
+		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
+		view.componentContainerDiv.append(componentDOM);
+	} //addComponent
+	
+	this.initComponentMenu = function(){
+		view.jsPlumbInstance.draggable($(".component-menu"), { 
+			grid : [20, 20],
+			drag : function(event, ui){ },
+			stop : function(event, ui){
+				view.addComponent(ui.offset.left, ui.offset.top);
+			}, 
+			revert : function(){ return true }
+		});
+	} //initComponentMenu
+	
+	this.setDraggable = function(target){
+		view.jsPlumbInstance.draggable(target, { grid : [20, 20] });
+	} //setDraggable
 }; //UI
-ui = new UI();
+view = new View();
 
 function Data() {
 }; //Data
 data = new Data();
 
-var dragUI;
-var dragEvent;
-var stopUI;
-var stopEvent;
-//INIT ----
-var instance;
+function Util() {
+	this.rgb = function(r, g, b){
+		return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+	} //rgb
+}; //Util
+util = new Util;
+
+
 jsPlumb.ready(function() {
-	instance = jsPlumb.getInstance({
+	view.jsPlumbInstance = jsPlumb.getInstance({
 		ConnectionOverlays: [
 			[ "Arrow", { location: 1 } ],
 			[ "Label", {
@@ -76,27 +140,7 @@ jsPlumb.ready(function() {
 			}]
 		]
 	});
-	
-	instance.draggable($(".component-menu"), { 
-		grid : [20, 20],
-		drag : function(event, ui){
-			dragUI = ui; 
-			dragEvent = event;
-			console.log('drag');
-		},
-		stop : function(event, ui){
-			stopUI = ui; 
-			stopEvent = event;
-			console.log('stop');
-			instance.repaint($(this));
-		}, 
-		revert : function(socketObj){
-			console.log('revert');
-			return true;
-		}
-	});
-	
-	instance.connect({ source : $("#componentDiv"), target : $("#filterDiv"), detachable : false}, {anchors : ["RightMiddle", "LeftMiddle"]});
+	view.initComponentMenu();
 });
 </script>
 </body>
