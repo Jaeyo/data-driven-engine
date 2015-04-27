@@ -12,6 +12,10 @@
 
 <!--  script src="http://code.jquery.com/jquery-1.11.2.min.js"></script -->
 
+<!--  
+<script src="http://jsplumbtoolkit.com/js/dom.jsPlumb-1.7.5-min.js"></script>
+-->
+
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
@@ -21,16 +25,33 @@
 
 <link href="http://designmodo.github.io/Flat-UI/dist/css/flat-ui.min.css" rel="stylesheet">
 <script src="http://designmodo.github.io/Flat-UI/dist/js/flat-ui.min.js"></script>
-<!--  
-<script src="http://jsplumbtoolkit.com/js/dom.jsPlumb-1.7.5-min.js"></script>
--->
 
 <style>
 html, body, .container {
 	height: 100%;
 	width: 100%;
-	margin: 0;
-	padding: 0;
+	line-height: 1;
+}
+
+* {
+	margin : 0;
+	padding : 0;
+}
+
+small {
+	font-size: smaller !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+hr {
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+
+.operation {
+	font-size: medium !important;
 }
 
 .component-menu-container {
@@ -48,17 +69,15 @@ html, body, .container {
 	left: 0;
 	top: 0;
 	position: alsolute;
-	background-color: rgb(230, 230, 230);
+	background-color: rgb(220, 220, 220);
 }
 
 .component {
-	width : 10%;
-	height : 5%;
-	margin : 0px;
-	background-color : rgb(157, 210, 193);
+	margin : 0;
+	background-color : rgb(244, 244, 244);
 	color : black;
-	border-radius : 0.5em;
-	padding : 4%;
+	border-radius : 0.3em;
+	padding : 1em;
 	float : left;
 	position : absolute;
 }
@@ -100,7 +119,19 @@ function View() {
 	this.jsPlumbInstance;
 	
 	this.addComponent = function(x, y){
-		var componentDOM = $('<div class="mrl component">component</div>');
+		var componentHtml = 
+			'<div class="component">' + 
+				'<h6>FileReader</h6>' + 
+				'<hr />' +
+				'<small>type : processor</small><br />' +
+				'<small>name : FileReader</small><br />' +
+				'<small>id : wowoiei3i2398389w</small>' +
+				'<hr />' +
+				'<a href="#" class="operation">start</a><br />' +
+				'<a href="#" class="operation">stop</a><br />' +
+				'<a href="#" class="operation">configuration</a><br />' +
+			'</div>';
+		var componentDOM = $(componentHtml);
 		componentDOM.css({ left : x, top : y });
 		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
 		view.componentContainerDiv.append(componentDOM);
@@ -108,7 +139,6 @@ function View() {
 	
 	this.initComponentMenu = function(){
 		view.addComponentBtn.click(function(){
-			console.log('a');
 			view.addComponent(0, 0);
 		});
 		view.addFilterBtn.click(function(){
