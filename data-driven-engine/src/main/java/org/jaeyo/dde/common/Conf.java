@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 
 public class Conf{
 	public static final String PORT = "port";
+	public static final String TELNET_PORT= "telnet.port";
 	
 	private static Map<String, Object> props = Maps.newHashMap();
 

@@ -11,6 +11,7 @@ public class App {
 		logger.info("started");
 		
 		Conf.set(Conf.PORT, 1234);
+		Conf.set(Conf.TELNET_PORT, 1212);
 	
 		JettyServer jetty=new JettyServer();
 		jetty.start();
