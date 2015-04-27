@@ -12,20 +12,72 @@
 
 <!--  script src="http://code.jquery.com/jquery-1.11.2.min.js"></script -->
 
+<!--  
+<script src="http://jsplumbtoolkit.com/js/dom.jsPlumb-1.7.5-min.js"></script>
+-->
+
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-<script src="http://jsplumbtoolkit.com/js/dom.jsPlumb-1.7.5-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+
+<link href="http://seogi1004.github.io/jui/lib/jui/jui.min.css" rel="stylesheet">
+<script src="http://seogi1004.github.io/jui/lib/jui/jui.js"></script>
+
+<link href="http://designmodo.github.io/Flat-UI/dist/css/flat-ui.min.css" rel="stylesheet">
+<script src="http://designmodo.github.io/Flat-UI/dist/js/flat-ui.min.js"></script>
 
 <style>
-.component-menu {
-	width : 10%;
-	height : 10%;
-	min-height : 6.5em;
-	margin : 0px;
-	background-color : #29e;
-	color : white;
-	border-radius : 0.75em;
-	padding : 4%;
+html, body, .container {
+	height: 100%;
+	width: 100%;
+	line-height: 1;
+}
+
+* {
+	margin : 0;
+	padding : 0;
+}
+
+small {
+	font-size: smaller !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+hr {
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+
+.operation {
+	font-size: medium !important;
+}
+
+.component-menu-container {
+	width: 30%;
+	height: 100%;
+	left: 70%;
+	top: 0;
+	position: absolute;
+	background-color: rgb(194, 194, 194);
+}
+
+.component-container {
+	width: 70%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	position: absolute;
+	background-color: rgb(220, 220, 220);
+}
+
+.component {
+	margin : 0;
+	background-color : rgb(244, 244, 244);
+	color : black;
+	border-radius : 0.3em;
+	padding : 1em;
 	float : left;
 	position : absolute;
 }
@@ -34,13 +86,24 @@
 </head>
 <body>
 
-<div id="componentDiv" class="component-menu">add component</div>
-<div id="filterDiv" class="component-menu">add filter</div>
+<div class="container">
+	<div id="componentContainerDiv" class="component-container">
+		component
+		<br />
+	</div>
+	<div class="component-menu-container">
+		<a id="addComponentBtn" href="#" class="btn btn-block btn-lg btn-primary">add component</a>
+		<a id="addFilterBtn" href="#" class="btn btn-block btn-lg btn-primary">add filter</a>
+	</div>
+	
+</div>
+
 
 <script type="text/javascript">
 var controller;
-var ui;
+var view;
 var data;
+var util;
 
 var firstInstance;
 
@@ -48,31 +111,83 @@ function Controller() {
 }; //Controller
 controller = new Controller();
 
-function UI() {
+function View() {
+	this.componentContainerDiv = $("#componentContainerDiv");
+	this.addComponentBtn = $("#addComponentBtn");
+	this.addFilterBtn = $("#addFilterBtn");
+	
+	this.jsPlumbInstance;
+	
+	this.addComponent = function(x, y){
+		var componentHtml = 
+			'<div class="component">' + 
+				'<h6>FileReader</h6>' + 
+				'<hr />' +
+				'<small>type : processor</small><br />' +
+				'<small>name : FileReader</small><br />' +
+				'<small>id : wowoiei3i2398389w</small>' +
+				'<hr />' +
+				'<a href="#" class="operation">start</a><br />' +
+				'<a href="#" class="operation">stop</a><br />' +
+				'<a href="#" class="operation">configuration</a><br />' +
+			'</div>';
+		var componentDOM = $(componentHtml);
+		componentDOM.css({ left : x, top : y });
+		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
+		view.componentContainerDiv.append(componentDOM);
+	} //addComponent
+	
+	this.initComponentMenu = function(){
+		view.addComponentBtn.click(function(){
+			view.addComponent(0, 0);
+		});
+		view.addFilterBtn.click(function(){
+			view.addComponent(0, 0);
+		});
+	} //initComponentMenu
+	
+	this.setDraggable = function(target){
+		view.jsPlumbInstance.draggable(target, { grid : [20, 20] });
+	} //setDraggable
 }; //UI
-ui = new UI();
+view = new View();
 
 function Data() {
 }; //Data
 data = new Data();
 
-//INIT ----
-var instance;
+function Util() {
+	this.rgb = function(r, g, b){
+		return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+	} //rgb
+}; //Util
+util = new Util;
+
+
 jsPlumb.ready(function() {
-	instance = jsPlumb.getInstance({
+	view.jsPlumbInstance = jsPlumb.getInstance({
 		ConnectionOverlays: [
-		                     [ "Arrow", { location: 1 } ],
-		                     [ "Label", {
-		                         location: 0.1,
-		                         id: "label",
-		                         cssClass: "aLabel"
-		                     }]
-		                 ]
+			[ "Arrow", { location: 1 } ],
+			[ "Label", {
+				location: 0.1,
+				id: "label",
+				cssClass: "aLabel"
+			}]
+		]
 	});
-	
-	instance.draggable($(".component-menu"), { grid : [20, 20] });
-	
-	instance.connect({ source : $("#componentDiv"), target : $("#filterDiv"), detachable : false}, {anchors : ["RightMiddle", "LeftMiddle"]});
+	view.initComponentMenu();
+});
+
+jui.ready([ "ui.accordion" ], function(accordion) {
+    accordion_1 = accordion(".accordion", {
+        event: {
+            open: function(index, e) {
+                $(this.root).find("i").attr("class", "icon-arrow1");
+                $(e.target).find("i").attr("class", "icon-arrow3");
+            }
+        },
+        index: 1
+    });
 });
 </script>
 </body>
