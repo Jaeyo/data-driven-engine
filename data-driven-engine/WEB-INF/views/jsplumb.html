@@ -55,21 +55,17 @@ hr {
 }
 
 .component-menu-container {
-	width: 30%;
-	height: 100%;
-	left: 70%;
+	width: 100%;
+	height: 4em;
+	left: 0;
 	top: 0;
 	position: absolute;
 	background-color: rgb(194, 194, 194);
 }
 
 .component-container {
-	width: 70%;
-	height: 100%;
-	left: 0;
-	top: 0;
+	top: 4em;
 	position: absolute;
-	background-color: rgb(220, 220, 220);
 }
 
 .component {
@@ -87,15 +83,12 @@ hr {
 <body>
 
 <div class="container">
-	<div id="componentContainerDiv" class="component-container">
-		component
-		<br />
-	</div>
 	<div class="component-menu-container">
 		<a id="addComponentBtn" href="#" class="btn btn-block btn-lg btn-primary">add component</a>
 		<a id="addFilterBtn" href="#" class="btn btn-block btn-lg btn-primary">add filter</a>
 	</div>
-	
+	<div id="componentContainerDiv" class="component-container">
+	</div>
 </div>
 
 
@@ -134,7 +127,9 @@ function View() {
 		var componentDOM = $(componentHtml);
 		componentDOM.css({ left : x, top : y });
 		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
+		componentDOM.hide();
 		view.componentContainerDiv.append(componentDOM);
+		componentDOM.toggle("bounce", {}, 500);
 	} //addComponent
 	
 	this.initComponentMenu = function(){
