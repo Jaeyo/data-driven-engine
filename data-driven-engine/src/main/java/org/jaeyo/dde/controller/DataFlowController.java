@@ -33,7 +33,7 @@ public class DataFlowController {
 			@PathVariable("componentName") String componentName) {
 		try {
 			dataFlowService.createNewComponent(componentName, 0, 0);
-			return "{ success : 1 }";
+			return new JSONObject().put("success", 1).toString();
 		} catch (UnknownComponentException e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);

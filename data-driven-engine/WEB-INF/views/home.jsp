@@ -126,7 +126,7 @@ function Controller() {
 			data:data,
 			success:onSuccess,
 			error:function(e){
-				alert("Error\n" + e.statusText);
+				alert("Error\n" + e.responseText);
 				console.error(e.statusText);
 			}
 		});
