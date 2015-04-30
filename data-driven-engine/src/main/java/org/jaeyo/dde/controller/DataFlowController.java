@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class DataFlowController {
@@ -22,7 +23,12 @@ public class DataFlowController {
 	@Inject
 	private DataFlowService dataFlowService;
 	
-	@RequestMapping(value = "/DataFlow/AddComponent/{componentName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public ModelAndView main(){
+		return new ModelAndView("home");
+	} //INIT
+	
+	@RequestMapping(value = "/DataFlow/AddComponent/{componentName}", method = RequestMethod.POST)
 	public @ResponseBody String addComponent(
 			@PathVariable("componentName") String componentName) {
 		try {
@@ -42,7 +48,7 @@ public class DataFlowController {
 		return null;
 	} //startComponent
 	
-	@RequestMapping(value = "/DataFlow/AddConnection/{source}/{target}", method = RequestMethod.GET)
+	@RequestMapping(value = "/DataFlow/AddConnection/{source}/{target}", method = RequestMethod.POST)
 	public @ResponseBody String addConnection(
 			@PathVariable("source") String source, 
 			@PathVariable("target") String target) {

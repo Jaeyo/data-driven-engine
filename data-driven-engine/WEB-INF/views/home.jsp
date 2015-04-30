@@ -1,7 +1,5 @@
-<!--  
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
--->
 <!DOCTYPE html>
 
 <html>
@@ -86,6 +84,7 @@ hr {
 	<div class="component-menu-container">
 		<a id="addComponentBtn" href="#" class="btn btn-block btn-lg btn-primary">add component</a>
 		<a id="addFilterBtn" href="#" class="btn btn-block btn-lg btn-primary">add filter</a>
+		<a id="testBtn" href="#" class="btn btn-block btn-lg btn-primary">test button</a>
 	</div>
 	<div id="componentContainerDiv" class="component-container">
 	</div>
@@ -101,6 +100,37 @@ var util;
 var firstInstance;
 
 function Controller() {
+	this.addComponent = function(componentName){
+		controller.ajaxCall('/DataFlow/AddComponent/'+componentName, 'post', {}, function(response){
+			console.log(response); //TODO IMME
+		});
+	} //addComponent
+	
+	this.addConnection = function(sourceId, targetId){
+		controller.ajaxCall('/DataFlow/AddConnection/'+sourceId+'/'+targetId , 'post', {}, function(response){
+			console.log(response); //TODO IMME
+		});
+	} //addConnection
+	
+	this.refreshMap = function(){
+		controller.ajaxCall('/DataFlow/Map', 'get', {}, function(response){
+			console.log(response); //TODO IMME
+		});
+	} //refreshMap
+	
+	this.ajaxCall = function(url, type, data, onSuccess){
+		$.ajax({
+			url:url,
+			type:type,
+			dataType:'json',
+			data:data,
+			success:onSuccess,
+			error:function(e){
+				alert("Error\n" + e.statusText);
+				console.error(e.statusText);
+			}
+		});
+	} //ajaxCall
 }; //Controller
 controller = new Controller();
 
@@ -108,8 +138,30 @@ function View() {
 	this.componentContainerDiv = $("#componentContainerDiv");
 	this.addComponentBtn = $("#addComponentBtn");
 	this.addFilterBtn = $("#addFilterBtn");
+	this.testBtn = $("#testBtn");
 	
 	this.jsPlumbInstance;
+	
+	this.addComponent = function(componentName, x, y, type, name, id){
+		var componentHtml = 
+			'<div class="component">' + 
+				'<h6>' + componentName + '</h6>' + 
+				'<hr />' +
+				'<small>type : ' + type + '</small><br />' +
+				'<small>name : ' + name + '</small><br />' +
+				'<small>id : ' + id + '</small>' +
+				'<hr />' +
+				'<a href="#" class="operation">start</a><br />' +
+				'<a href="#" class="operation">stop</a><br />' +
+				'<a href="#" class="operation">configuration</a><br />' +
+			'</div>';
+		var componentDOM = $(componentHtml);
+		componentDOM.css({ left : x, top : y });
+		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
+		componentDOM.hide();
+		view.componentContainerDiv.append(componentDOM);
+		componentDOM.toggle("bounce", {}, 500);
+	} //addComponent
 	
 	this.addComponent = function(x, y){
 		var componentHtml = 
@@ -138,6 +190,9 @@ function View() {
 		});
 		view.addFilterBtn.click(function(){
 			view.addComponent(0, 0);
+		});
+		view.testBtn.click(function(){
+			//TODO IMME
 		});
 	} //initComponentMenu
 	
