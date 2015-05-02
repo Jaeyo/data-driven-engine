@@ -13,8 +13,8 @@ public abstract class InOutProcessor extends Processor implements Input, Output{
 	private InputConnectionGroup inputGroup; 
 	private OutputRouter outputRouter;
 	
-	public InOutProcessor(UUID id, int x, int y, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
-		super(id, x, y);
+	public InOutProcessor(UUID id, int x, int y, String name, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
+		super(id, x, y, name);
 		this.inputGroup = inputGroup;
 		this.outputRouter = outputRouter;
 	} //INIT

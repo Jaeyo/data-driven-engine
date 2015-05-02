@@ -12,8 +12,8 @@ public abstract class Processor extends Component{
 	private boolean isRunning = false;
 	private UUID id;
 
-	public Processor(UUID id, int x, int y) {
-		super(x, y);
+	public Processor(UUID id, int x, int y, String name) {
+		super(x, y, name);
 		this.id = id;
 	} //INIT
 

@@ -8,8 +8,8 @@ import org.jaeyo.dde.dataflow.component.processor.InProcessor;
 import org.jaeyo.dde.event.Event;
 
 public class ConsolePrinter extends InProcessor{
-	public ConsolePrinter(UUID id, int x, int y, InputConnectionGroup inputGroup) {
-		super(id, x, y, inputGroup);
+	public ConsolePrinter(UUID id, int x, int y, String name, InputConnectionGroup inputGroup) {
+		super(id, x, y, name, inputGroup);
 	}
 
 	@Override

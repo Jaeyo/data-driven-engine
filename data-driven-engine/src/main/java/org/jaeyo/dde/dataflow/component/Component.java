@@ -9,10 +9,12 @@ public abstract class Component {
 	
 	private int x;
 	private int y;
+	private String name;
 
-	public Component(int x, int y) {
+	public Component(int x, int y, String name) {
 		this.x = x;
 		this.y = y;
+		this.name = name;
 	}
 
 	public int getX() {
@@ -31,8 +33,21 @@ public abstract class Component {
 		this.y = y;
 	}
 	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public JSONObject getJson(){
-		return new JSONObject().put("id", getId().toString()).put("type", getComponentType());
+		return new JSONObject()
+			.put("uuid", getId().toString())
+			.put("name", getName())
+			.put("type", getComponentType())
+			.put("x", getX())
+			.put("y", getY());
 	} //getJson
 	
 	public abstract UUID getId();

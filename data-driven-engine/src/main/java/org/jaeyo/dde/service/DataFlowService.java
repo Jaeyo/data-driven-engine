@@ -24,10 +24,19 @@ public class DataFlowService {
 	@Inject
 	private Dataflow dataFlow;
 	
-	public void createNewComponent(String componentName, int x, int y) throws UnknownComponentException {
-		Component component = createNewComponentInstance(componentName, x, y);
+	public Component createNewComponent(String type, String name, int x, int y) throws UnknownComponentException {
+		Component component = createNewComponentInstance(type, name, x, y);
 		dataFlow.addComponent(component);
+		return component;
 	} //createNewComponent
+	
+	public void updateComponent(String uuid, int x, int y) throws NotExistsException{
+		Component component = dataFlow.getComponent(UUID.fromString(uuid));
+		if(x >= 0)
+			component.setX(x);
+		if(y >= 0)
+			component.setY(y);
+	} //updateComponent
 	
 	public void startComponent(String id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{
 		dataFlow.startComponent(UUID.fromString(id));
@@ -45,15 +54,15 @@ public class DataFlowService {
 		return dataFlow.getDataFlowMapJson();
 	} //getDataFlowMap
 	
-	private Component createNewComponentInstance(String componentName, int x, int y) throws UnknownComponentException {
-		if("ConsolePrinter".equals(componentName)){
-			return new ConsolePrinter(UUID.randomUUID(), x, y, new InputConnectionGroup());
-		} else if("FileReader".equals(componentName)) {
-			return new FileReader(UUID.randomUUID(), x, y, new OutputRouter());
-		} else if("SimpleDeliver".equals(componentName)) {
-			return new SimpleDeliver(UUID.randomUUID(), x, y, new InputConnectionGroup(), new OutputRouter());
+	private Component createNewComponentInstance(String type, String name, int x, int y) throws UnknownComponentException {
+		if("ConsolePrinter".equals(type)){
+			return new ConsolePrinter(UUID.randomUUID(), x, y, name, new InputConnectionGroup());
+		} else if("FileReader".equals(type)) {
+			return new FileReader(UUID.randomUUID(), x, y, name, new OutputRouter());
+		} else if("SimpleDeliver".equals(type)) {
+			return new SimpleDeliver(UUID.randomUUID(), x, y, name, new InputConnectionGroup(), new OutputRouter());
 		} else{
-			throw new UnknownComponentException(componentName);
+			throw new UnknownComponentException(type);
 		} //if
 	} //createNewProcessor
 } //class

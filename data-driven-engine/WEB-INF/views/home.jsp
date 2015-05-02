@@ -80,165 +80,22 @@ hr {
 </head>
 <body>
 
+<script src="/resource/js/home.js"></script>
+<script type="text/javascript">
+var addFileReaderBtn = new ComponentBtn('FileReader');
+var addSimpleDeliverBtn = new ComponentBtn('SimpleDeliver');
+var addConsolePrinter = new ComponentBtn('ConsolePrinter');
+</script>
+
 <div class="container">
 	<div class="component-menu-container">
-		<a id="addComponentBtn" href="#" class="btn btn-block btn-lg btn-primary">add component</a>
-		<a id="addFilterBtn" href="#" class="btn btn-block btn-lg btn-primary">add filter</a>
-		<a id="testBtn" href="#" class="btn btn-block btn-lg btn-primary">test button</a>
+		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addFileReaderBtn.addComponent();">add FileReader</a>
+		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addSimpleDeliverBtn.addComponent();">add SimpleDeliver</a>
+		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addConsolePrinter.addComponent();">add ConsolePrinter</a>
 	</div>
 	<div id="componentContainerDiv" class="component-container">
 	</div>
 </div>
 
-
-<script type="text/javascript">
-var controller;
-var view;
-var data;
-var util;
-
-var firstInstance;
-
-function Controller() {
-	this.addComponent = function(componentName){
-		controller.ajaxCall('/DataFlow/AddComponent/'+componentName, 'post', {}, function(response){
-			console.log(response); //TODO IMME
-		});
-	} //addComponent
-	
-	this.addConnection = function(sourceId, targetId){
-		controller.ajaxCall('/DataFlow/AddConnection/'+sourceId+'/'+targetId , 'post', {}, function(response){
-			console.log(response); //TODO IMME
-		});
-	} //addConnection
-	
-	this.refreshMap = function(){
-		controller.ajaxCall('/DataFlow/Map', 'get', {}, function(response){
-			console.log(response); //TODO IMME
-		});
-	} //refreshMap
-	
-	this.ajaxCall = function(url, type, data, onSuccess){
-		$.ajax({
-			url:url,
-			type:type,
-			dataType:'json',
-			data:data,
-			success:onSuccess,
-			error:function(e){
-				alert("Error\n" + e.responseText);
-				console.error(e.statusText);
-			}
-		});
-	} //ajaxCall
-}; //Controller
-controller = new Controller();
-
-function View() {
-	this.componentContainerDiv = $("#componentContainerDiv");
-	this.addComponentBtn = $("#addComponentBtn");
-	this.addFilterBtn = $("#addFilterBtn");
-	this.testBtn = $("#testBtn");
-	
-	this.jsPlumbInstance;
-	
-	this.addComponent = function(componentName, x, y, type, name, id){
-		var componentHtml = 
-			'<div class="component">' + 
-				'<h6>' + componentName + '</h6>' + 
-				'<hr />' +
-				'<small>type : ' + type + '</small><br />' +
-				'<small>name : ' + name + '</small><br />' +
-				'<small>id : ' + id + '</small>' +
-				'<hr />' +
-				'<a href="#" class="operation">start</a><br />' +
-				'<a href="#" class="operation">stop</a><br />' +
-				'<a href="#" class="operation">configuration</a><br />' +
-			'</div>';
-		var componentDOM = $(componentHtml);
-		componentDOM.css({ left : x, top : y });
-		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
-		componentDOM.hide();
-		view.componentContainerDiv.append(componentDOM);
-		componentDOM.toggle("bounce", {}, 500);
-	} //addComponent
-	
-	this.addComponent = function(x, y){
-		var componentHtml = 
-			'<div class="component">' + 
-				'<h6>FileReader</h6>' + 
-				'<hr />' +
-				'<small>type : processor</small><br />' +
-				'<small>name : FileReader</small><br />' +
-				'<small>id : wowoiei3i2398389w</small>' +
-				'<hr />' +
-				'<a href="#" class="operation">start</a><br />' +
-				'<a href="#" class="operation">stop</a><br />' +
-				'<a href="#" class="operation">configuration</a><br />' +
-			'</div>';
-		var componentDOM = $(componentHtml);
-		componentDOM.css({ left : x, top : y });
-		view.jsPlumbInstance.draggable(componentDOM, { grid : [20, 20] });
-		componentDOM.hide();
-		view.componentContainerDiv.append(componentDOM);
-		componentDOM.toggle("bounce", {}, 500);
-	} //addComponent
-	
-	this.initComponentMenu = function(){
-		view.addComponentBtn.click(function(){
-			view.addComponent(0, 0);
-		});
-		view.addFilterBtn.click(function(){
-			view.addComponent(0, 0);
-		});
-		view.testBtn.click(function(){
-			//TODO IMME
-		});
-	} //initComponentMenu
-	
-	this.setDraggable = function(target){
-		view.jsPlumbInstance.draggable(target, { grid : [20, 20] });
-	} //setDraggable
-}; //UI
-view = new View();
-
-function Data() {
-}; //Data
-data = new Data();
-
-function Util() {
-	this.rgb = function(r, g, b){
-		return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
-	} //rgb
-}; //Util
-util = new Util;
-
-
-jsPlumb.ready(function() {
-	view.jsPlumbInstance = jsPlumb.getInstance({
-		ConnectionOverlays: [
-			[ "Arrow", { location: 1 } ],
-			[ "Label", {
-				location: 0.1,
-				id: "label",
-				cssClass: "aLabel"
-			}]
-		]
-	});
-	view.initComponentMenu();
-});
-
-jui.ready([ "ui.accordion" ], function(accordion) {
-    accordion_1 = accordion(".accordion", {
-        event: {
-            open: function(index, e) {
-                $(this.root).find("i").attr("class", "icon-arrow1");
-                $(e.target).find("i").attr("class", "icon-arrow3");
-            }
-        },
-        index: 1
-    });
-});
-</script>
 </body>
 </html>

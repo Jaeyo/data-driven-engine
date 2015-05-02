@@ -11,8 +11,8 @@ import org.jaeyo.dde.exception.NoAvailableOutputException;
 
 public class SimpleDeliver extends InOutProcessor {
 
-	public SimpleDeliver(UUID id, int x, int y, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
-		super(id, x, y, inputGroup, outputRouter);
+	public SimpleDeliver(UUID id, int x, int y, String name, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
+		super(id, x, y, name, inputGroup, outputRouter);
 	} //INIT
 
 	@Override

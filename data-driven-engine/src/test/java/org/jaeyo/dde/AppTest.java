@@ -19,9 +19,9 @@ public class AppTest {
 
 	@Test
 	public void test() throws Exception{
-		FileReader p1 = new FileReader(UUID.randomUUID(), 0, 0, new OutputRouter());
-		SimpleDeliver p2 = new SimpleDeliver(UUID.randomUUID(), 0, 0, new InputConnectionGroup(), new OutputRouter());
-		ConsolePrinter p3 = new ConsolePrinter(UUID.randomUUID(), 0, 0, new InputConnectionGroup());
+		FileReader p1 = new FileReader(UUID.randomUUID(), 0, 0, "p1", new OutputRouter());
+		SimpleDeliver p2 = new SimpleDeliver(UUID.randomUUID(), 0, 0, "p2", new InputConnectionGroup(), new OutputRouter());
+		ConsolePrinter p3 = new ConsolePrinter(UUID.randomUUID(), 0, 0, "p3", new InputConnectionGroup());
 		
 		ConnectionQueue conn1to2 = new MemoryConnectionQueue(UUID.randomUUID(), p1.getId(), p2.getId());
 		ConnectionQueue conn2to3 = new MemoryConnectionQueue(UUID.randomUUID(), p2.getId(), p3.getId());

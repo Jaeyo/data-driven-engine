@@ -2,6 +2,7 @@ package org.jaeyo.dde.controller;
 
 import javax.inject.Inject;
 
+import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.jaeyo.dde.exception.UnknownComponentException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -28,18 +30,39 @@ public class DataFlowController {
 		return new ModelAndView("home");
 	} //INIT
 	
-	@RequestMapping(value = "/DataFlow/AddComponent/{componentName}", method = RequestMethod.POST)
+	@RequestMapping(value = "/DataFlow/AddComponent/{type}", method = RequestMethod.POST)
 	public @ResponseBody String addComponent(
-			@PathVariable("componentName") String componentName) {
+			@PathVariable("type") String type,
+			@RequestParam("name") String name) {
 		try {
-			dataFlowService.createNewComponent(componentName, 0, 0);
-			return new JSONObject().put("success", 1).toString();
+			Component component = dataFlowService.createNewComponent(type, name, 0, 0); //TODO IMME
+			JSONObject retJson = new JSONObject();
+			retJson.put("success", 1);
+			retJson.put("component", component.getJson());
+			return retJson.toString();
 		} catch (UnknownComponentException e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);
 			return new JSONObject().put("success", "0").put("msg", msg).toString();
 		} //catch
 	} // addComponent
+	
+	@RequestMapping(value = "/DataFlow/UpdateComponent/{uuid}", method = RequestMethod.PUT)
+	public @ResponseBody String updateComponent(
+			@PathVariable("uuid") String uuid,
+			@RequestParam(value = "x", required = false) String x,
+			@RequestParam(value = "y", required = false) String y){
+		int xVal = (x == null) ? -1 : Integer.parseInt(x);
+		int yVal = (y == null) ? -1 : Integer.parseInt(y);
+		try {
+			dataFlowService.updateComponent(uuid, xVal, yVal);
+			return new JSONObject().put("success", 1).toString();
+		} catch (NotExistsException e) {
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", 0).put("msg", msg).toString();
+		} //catch
+	} //updateComponent
 
 	@RequestMapping(value = "/DataFlow/StartComponent/{id}", method = RequestMethod.GET)
 	public @ResponseBody String startComponent(
@@ -54,7 +77,7 @@ public class DataFlowController {
 			@PathVariable("target") String target) {
 		try {
 			dataFlowService.createNewConnection(source, target);
-			return "{ success : 1 }";
+			return new JSONObject().put("success", 1).toString();
 		} catch (NotExistsException | InvalidOperationException e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);

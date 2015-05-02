@@ -16,8 +16,8 @@ import org.jaeyo.dde.exception.NoAvailableOutputException;
 public class FileReader extends OutProcessor{
 	private BufferedReader reader;
 
-	public FileReader(UUID id, int x, int y, OutputRouter outputRouter) {
-		super(id, x, y, outputRouter);
+	public FileReader(UUID id, int x, int y, String name, OutputRouter outputRouter) {
+		super(id, x, y, name, outputRouter);
 	}
 
 	@Override

@@ -26,10 +26,12 @@
 		</layout>
 	</appender>
 
-	<logger name="org.lasti">
+<!--  
+	<logger name="org.jaeyo">
 		<level value="TRACE" />
 		<appender-ref ref="console" />
 	</logger>
+	-->
 
 	<root>
 		<level value="DEBUG" />

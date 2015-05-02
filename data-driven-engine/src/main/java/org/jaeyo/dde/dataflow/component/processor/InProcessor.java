@@ -9,8 +9,8 @@ import org.jaeyo.dde.event.Event;
 public abstract class InProcessor extends Processor implements Input{
 	private InputConnectionGroup inputGroup; 
 	
-	public InProcessor(UUID id, int x, int y, InputConnectionGroup inputGroup) {
-		super(id, x, y);
+	public InProcessor(UUID id, int x, int y, String name, InputConnectionGroup inputGroup) {
+		super(id, x, y, name);
 		this.inputGroup = inputGroup;
 	}
 

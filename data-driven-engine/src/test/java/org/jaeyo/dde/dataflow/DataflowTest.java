@@ -27,9 +27,9 @@ public class DataflowTest {
 			UUID comp2Id = UUID.randomUUID();
 			UUID comp3Id = UUID.randomUUID();
 
-			FileReader comp1 = new FileReader(comp1Id, 0, 0, new OutputRouter());
-			SimpleDeliver comp2 = new SimpleDeliver(comp2Id, 0, 0, new InputConnectionGroup(), new OutputRouter());
-			ConsolePrinter comp3 = new ConsolePrinter(comp3Id, 0, 0, new InputConnectionGroup());
+			FileReader comp1 = new FileReader(comp1Id, 0, 0, "comp1", new OutputRouter());
+			SimpleDeliver comp2 = new SimpleDeliver(comp2Id, 0, 0, "comp2", new InputConnectionGroup(), new OutputRouter());
+			ConsolePrinter comp3 = new ConsolePrinter(comp3Id, 0, 0, "comp3", new InputConnectionGroup());
 
 			dataflow.addComponent(comp1);
 			dataflow.addComponent(comp2);

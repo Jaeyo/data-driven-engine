@@ -11,8 +11,8 @@ import org.jaeyo.dde.exception.NoAvailableOutputException;
 public abstract class OutProcessor extends Processor implements Output{
 	private OutputRouter outputRouter;
 
-	public OutProcessor(UUID id, int x, int y, OutputRouter outputRouter) {
-		super(id, x, y);
+	public OutProcessor(UUID id, int x, int y, String name, OutputRouter outputRouter) {
+		super(id, x, y, name);
 		this.outputRouter = outputRouter;
 	} //INIT
 	
