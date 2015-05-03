@@ -2,6 +2,8 @@ package org.jaeyo.dde.dataflow.component;
 
 import java.util.UUID;
 
+import org.jaeyo.dde.dataflow.component.processor.Input;
+import org.jaeyo.dde.dataflow.component.processor.Output;
 import org.json.JSONObject;
 
 public abstract class Component {
@@ -47,7 +49,9 @@ public abstract class Component {
 			.put("name", getName())
 			.put("type", getComponentType())
 			.put("x", getX())
-			.put("y", getY());
+			.put("y", getY())
+			.put("inputable", this instanceof Input)
+			.put("outputable", this instanceof Output);
 	} //getJson
 	
 	public abstract UUID getId();
