@@ -5,26 +5,72 @@
 JsPlumbWrapper = function(){
 	this.instance = jsPlumb.getInstance({
 		ConnectionOverlays: [
-		                     [ "Arrow", { location: 1 } ],
-		                     [ "Label", {
-		                    	 location: 0.1,
-		                    	 id: "label",
-		                    	 cssClass: "aLabel"
-		                     }]
+		    [ "Arrow", { location: 1 } ],
+		    [ "Label", {
+		    	location: 0.1,
+		    	id: "label",
+		    	cssClass: "aLabel"
+		    }]
 		]
 	});
+	this.sourceEndPointOption = {
+		anchor: "Right",
+		endpoint: "Dot",
+		paintStyle: {
+			strokeStyle: "#7AB02C",
+			fillStyle: "transparent",
+			radius: 7,
+			lineWidth: 3
+		},
+		isSource: true,
+		connector: [ "Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true } ],
+		connectorStyle: {
+			lineWidth: 4,
+			strokeStyle: "#61B7CF",
+			joinstyle: "round",
+			outlineColor: "white",
+			outlineWidth: 2
+		},
+		hoverPaintStyle: {
+			fillStyle: "#216477",
+			strokeStyle: "#216477"
+		},
+		connectorHoverStyle: {
+			lineWidth: 4,
+			strokeStyle: "#216477",
+			outlineWidth: 2,
+			outlineColor: "white"
+		},
+		dragOptions: {}
+	};
+	this.targetEndPointOption = {
+		anchor: "Left",
+		endpoint: "Dot",
+		paintStyle: { fillStyle: "#7AB02C", radius: 11 },
+		hoverPaintStyle: {
+			fillStyle: "#216477",
+			strokeStyle: "#216477"
+		},
+		maxConnections: -1,
+		dropOptions: { hoverClass: "hover", activeClass: "active" },
+		isTarget: true,
+		
+	}; //endPointOption
 }; //INIT
 JsPlumbWrapper.prototype = {
 	draggable: function(target){
+		var uuid = target.attr('id');
 		this.instance.draggable(target, { 
 			grid: [20, 20],
 			stop: function(e){
 				var x = target.css('left').replace('px', '');
 				var y = target.css('top').replace('px', '');
-				var uuid = $(this).attr('id');
 				controller.updateComponent(uuid, x, y);
 			}
 		});
+	
+		this.instance.addEndpoint(target, this.sourceEndPointOption);
+		this.instance.addEndpoint(target, this.targetEndPointOption);
 	}, //draggable
 	connect: function(sourceId, targetId){
 		this.instance.connect({
@@ -125,8 +171,8 @@ View.prototype = {
 		var y = component.getY();
 		var componentDom = component.getDom();
 		componentDom.css({ left : x, top : y });
-		jsPlumbWrapper.draggable(componentDom);
 		$("#componentContainerDiv").append(componentDom);
+		jsPlumbWrapper.draggable(componentDom);
 	}, //addComponent
 	removeComponents: function(uuids){
 		uuids.forEach(function(uuid, key, list){
