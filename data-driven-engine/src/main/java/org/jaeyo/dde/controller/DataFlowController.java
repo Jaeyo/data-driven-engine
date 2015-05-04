@@ -52,11 +52,12 @@ public class DataFlowController {
 	public @ResponseBody String updateComponent(
 			@PathVariable("uuid") String uuid,
 			@RequestParam(value = "x", required = false) String x,
-			@RequestParam(value = "y", required = false) String y){
+			@RequestParam(value = "y", required = false) String y,
+			@RequestParam(value = "name", required = false) String name){
 		int xVal = (x == null) ? -1 : Integer.parseInt(x);
 		int yVal = (y == null) ? -1 : Integer.parseInt(y);
 		try {
-			dataFlowService.updateComponent(uuid, xVal, yVal);
+			dataFlowService.updateComponent(uuid, xVal, yVal, name);
 			return new JSONObject().put("success", 1).toString();
 		} catch (NotExistsException e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());

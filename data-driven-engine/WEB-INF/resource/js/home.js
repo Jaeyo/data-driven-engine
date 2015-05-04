@@ -19,8 +19,6 @@ JsPlumbWrapper.prototype = {
 		this.instance.draggable(target, { 
 			grid: [20, 20],
 			stop: function(e){
-				//var x = e.offsetX;
-				//var y = e.offsetY;
 				var x = target.css('left').replace('px', '');
 				var y = target.css('top').replace('px', '');
 				var uuid = $(this).attr('id');
@@ -50,8 +48,8 @@ ServerAdapter.prototype = {
 			data: data,
 			success: onSuccess,
 			error: function(e){
-				alert("ERROR\n" + e.responseText);
-				console.log(e.statusText);
+				console.log('error');
+				console.log(e);
 			}
 		});
 	}, //ajaxCall
@@ -70,7 +68,12 @@ ServerAdapter.prototype = {
 	}, //addConnection
 	getMap: function(onSuccess){
 		this.ajaxCall('/DataFlow/Map', 'get', {}, onSuccess);
-	}
+	}, //getMap
+	rename: function(uuid, name){
+		this.ajaxCall('/DataFlow/UpdateComponent/' + uuid, 'put', {name: name}, function(response){
+			//do nothing
+		});
+	} //rename
 }; //ServerAdapter
 var serverAdapter = new ServerAdapter();
 
@@ -146,18 +149,16 @@ Controller.prototype = {
 	updateComponent: function(uuid, x, y){
 		serverAdapter.updateComponent(uuid, x, y);
 	}, //updateComponent
-	viewConnectTargetList: function(uuid){
-		var sourceComponent = this.model.getComponent(uuid);
-		var components = this.model.getInputableComponents();
-		sourceComponent.viewConnectTargetList(components);
-	}, //viewConnectTargetList
-	connect: function(sourceUUID, targetUUID){
-		jsPlumbWrapper.connect(sourceUUID, targetUUID);
-	}, //connect
 	clearMap: function(){
 		var uuids = this.model.removeAllUUIDs();
 		this.view.removeComponents(uuids);
 	}, //clearMap
+	showRenameDialog: function(uuid){
+		this.model.getComponent(uuid).showRenameDialog();
+	}, //viewRenameDialog
+	connect: function(sourceUUID, targetUUID){
+		this.model.getComponent(sourceUUID).connect(targetUUID);
+	}, //connect
 	refreshMap: function(){
 		this.clearMap();
 		serverAdapter.getMap(function(response){
@@ -180,7 +181,12 @@ Controller.prototype = {
 						componentsJson[i].outputable);
 				controller.addComponent(component);
 			} //for i
-			//TODO handle linesJson
+			
+			for(var i=0; i<linesJson.length; i++){
+				var sourceUUID = linesJson[i].source;
+				var targetUUID = linesJson[i].target;
+				controller.connect(sourceUUID, targetUUID);
+			} //for i
 		});
 	} //refreshMap
 }; //Controller
@@ -238,15 +244,13 @@ ComponentModel.prototype = {
 ComponentView = function(name, type, uuid){
 	var componentHtml = 
 			'<div class="component" id="' + uuid + '">' + 
-				'<h6>' + name + '</h6>' + 
+				'<h6>' + name + '</h6><a href="#" onclick="controller.showRenameDialog(\''+uuid+'\')"><small>[edit]</small></a>' + 
 				'<hr />' +
 				'<small>type : ' + type + '</small><br />' +
-				'<small>uuid : ' + uuid + '</small>' +
+				'<small style="white-space:nowrap;">uuid : ' + uuid + '</small>' +
 				'<hr />' +
 				'<a href="#" class="operation">start</a><br />' +
 				'<a href="#" class="operation">stop</a><br />' +
-				'<a href="#" class="operation" onclick="controller.viewConnectTargetList(\'' + uuid + '\')">connect</a><br />' +
-				'<div class="connect-target-list" />' +
 				'<a href="#" class="operation">configuration</a><br />' +
 			'</div>';
 		this.dom = $(componentHtml);
@@ -255,14 +259,9 @@ ComponentView.prototype = {
 	getDom: function(){
 		return this.dom;
 	}, //getDom
-	viewConnectTargetList: function(myUUID, inputableComponents){
-		var connectTargetListHtml = "";
-		inputableComponents.forEach(function(component, key, list){
-			connectTargetListHtml +=
-				'<a href="#" onclick="controller.connect(\'' + myUUID + '\', \'' + component.getUUID() + '\')">' + component.getName() + '</a><br />';
-		});
-		$('#' + myUUID).find(".connect-target-list")[0].innerHTML = connectTargetListHtml;
-	} //viewConnectTargetList
+	showRenameDialog: function(myUUID, oldName){
+		new ComponentRenameDialog().show(myUUID, oldName);
+	} //showRenameDialog
 }; //ComponentView
 
 //-------------------------------------------------------------------------------------
@@ -270,28 +269,14 @@ ComponentView.prototype = {
 Component = function(name, type, uuid, x, y, inputable, outputable){
 	this.model = new ComponentModel(name, type, uuid, x, y, inputable, outputable);
 	this.view = new ComponentView(name, type, uuid);
-	this.config = new ComponentConfig();
 }; //INIT
 Component.prototype = {
-	connect: function(targetComponent){
-		var sourceUUID = this.getUUID();
-		var targetUUID = targetComponent.getUUID();
-		serverAdapter.connect(sourceUUID, targetUUID, function(response){
-			if(response.success === 0){
-				alert('Error\n' + JSON.stringify(response));
-				return;
-			} //if
-			
-			jsPlumbWrapper.connect(sourceUUID, targetUUID);
-		});
+	connect: function(targetUUID){
+		jsPlumbWrapper.connect(this.getUUID(), targetUUID);
 	}, //addConnection
-	viewConnectTargetList: function(inputableComponents){
-		var myUUID = this.getUUID();
-		inputableComponents = inputableComponents.filter(function(component, key, list){ 
-			return component.getUUID() != myUUID;
-		});
-		this.view.viewConnectTargetList(myUUID, inputableComponents);
-	}, //viewConnectTargetList
+	showRenameDialog: function(){
+		this.view.showRenameDialog(this.model.getUUID(), this.model.getName());
+	}, //showRenameDialog
 	showConfig: function(){
 		this.config.showDialog();
 	}, //showConfig
@@ -308,33 +293,14 @@ Component.prototype = {
 
 //-------------------------------------------------------------------------------------
 
-ComponentConfigModel = function(){
-	this.configMap = new js_cols.HashMap();
-};
-ComponentConfigModel.prototype = {
-	set: function(key, value){
-		this.configMap.insert(key, value);
-	}, //set
-	get: function(key){
-		return this.configMap.get(key);
-	}, //get
-	getConfig: function(){
-		return this.configMap;
-	} //getConfig
-};
-
-//-------------------------------------------------------------------------------------
-
-ComponentConfigView = function(){
-};
-ComponentConfigView.prototype = {
-	showDialog: function(configMap){
-		var html = '<div class="component-config-dialog">';
-		configMap.forEach(function(value, key, map){
-			html += '<label>' + key + '</label>';
-			html += '<input type="text" value="' + value + '" />';
-		});
-		html += '</div>';
+ComponentRenameDialog = function(){};
+ComponentRenameDialog.prototype = {
+	show: function(uuid, oldName){
+		var html = 
+			'<div class="component-rename-dialog">'+
+			'<label>name</label><br />'+
+			'<input id="renameInput" type="text" style="width:300px;" value="'+oldName+'" />'+
+			'</div>';
 		var dialog = null;
 		dialog = $(html).dialog({
 			autoOpen: false,
@@ -342,62 +308,17 @@ ComponentConfigView.prototype = {
 			width: 350,
 			modal: true,
 			buttons: {
-				"OK": function(){ console.log("ok"); },
+				"OK": function(){
+					var newName = $("#renameInput").val();
+					serverAdapter.rename(uuid, newName);
+					controller.refreshMap();
+					dialog.dialog("destroy").remove();
+				},
 				"Cancel": function(){
-					console.log("cancel");
-					dialog.dialog("close");
+					dialog.dialog("destroy").remove();
 				}
 			} //buttons
 		});
 		dialog.dialog("open");
-	} //showDialog
+	} //show
 };
-
-//-------------------------------------------------------------------------------------
-
-ComponentConfig = function(){
-	this.model = new ComponentConfigModel();
-	this.view = new ComponentConfigView();
-}; //INIT
-ComponentConfig.prototype = {
-	showDialog: function(){
-		var configMap = this.model.getConfig();
-		this.view.showDialog(configMap);
-	} //showDialog
-}; //ComponentConfig
-
-//-------------------------------------------------------------------------------------
-
-ConnectionConfigModel = function(){
-	this.connectionMap = new js_cols.HashMap();
-}; //ConnectionConfigModel
-ConnectionConfigModel.prototype = {
-	set: function(key, value){
-		this.connectionMap.set(key, value);
-	}, //set
-	get: function(key){
-		return this.connectionMap.get(key);
-	}, //get
-	getConnectionMap: function(){
-		return this.connectionMap;
-	} //getConnectionMap
-}; //ConnectionConfigModel
-
-//-------------------------------------------------------------------------------------
-
-ConnectionConfigView = function(){
-	//TODO IMME
-}; //ConnectionConfigView
-ConnectionConfigView.prototype = {
-	//TODO IMME
-}; //COnnectionConfigView
-
-//-------------------------------------------------------------------------------------
-
-ConnectionConfig = function(){
-	this.model = new ConnectionConfigModel();
-	this.view = new ConnectionConfigView();
-} //INIT
-ConnectionConfig.prototype = {
-	//TODO IMME
-}; //ConnectionConfig

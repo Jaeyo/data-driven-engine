@@ -30,12 +30,14 @@ public class DataFlowService {
 		return component;
 	} //createNewComponent
 	
-	public void updateComponent(String uuid, int x, int y) throws NotExistsException{
+	public void updateComponent(String uuid, int x, int y, String name) throws NotExistsException{
 		Component component = dataFlow.getComponent(UUID.fromString(uuid));
 		if(x >= 0)
 			component.setX(x);
 		if(y >= 0)
 			component.setY(y);
+		if(name != null)
+			component.setName(name);
 	} //updateComponent
 	
 	public void startComponent(String id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{

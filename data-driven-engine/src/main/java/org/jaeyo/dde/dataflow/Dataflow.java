@@ -59,8 +59,10 @@ public class Dataflow{
 			if(component instanceof Output){
 				Output out = (Output) component;
 				JSONArray connJsons = out.getOutputRouter().getOutputConnectionJson();
-				if(connJsons.length() != 0)
-					linesJson.put(connJsons);
+				if(connJsons.length() == 0)
+					continue;
+				for(int i=0; i<connJsons.length(); i++)
+					linesJson.put(connJsons.getJSONObject(i));
 			} //if
 		} //for component
 		
