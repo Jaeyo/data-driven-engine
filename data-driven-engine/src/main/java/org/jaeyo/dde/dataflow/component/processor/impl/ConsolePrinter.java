@@ -1,6 +1,5 @@
 package org.jaeyo.dde.dataflow.component.processor.impl;
 
-import java.util.Properties;
 import java.util.UUID;
 
 import org.jaeyo.dde.dataflow.component.conngroup.InputConnectionGroup;
@@ -25,11 +24,6 @@ public class ConsolePrinter extends InProcessor{
 	@Override
 	public void beforeStop() {
 		System.out.println("ConsolePrinter stopped");
-	}
-
-	@Override
-	public void config(Properties config) {
-		
 	}
 
 	@Override

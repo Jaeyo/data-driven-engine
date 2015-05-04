@@ -73,7 +73,10 @@ hr {
 	background-color : rgb(244, 244, 244);
 	color : black;
 	border-radius : 0.3em;
-	padding : 1em;
+	padding-top: 0.3em;
+	padding-bottom: 0.3em;
+	padding-left: 1.5em;
+	padding-right: 1.5em;
 	float : left;
 	position : absolute;
 }

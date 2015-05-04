@@ -1,7 +1,3 @@
-//js_cols.require('js_cols.HashMap');
-
-//-------------------------------------------------------------------------------------
-
 JsPlumbWrapper = function(){
 	this.instance = jsPlumb.getInstance({
 		ConnectionOverlays: [
@@ -366,5 +362,14 @@ ComponentRenameDialog.prototype = {
 			} //buttons
 		});
 		dialog.dialog("open");
+	} //show
+};
+
+//-------------------------------------------------------------------------------------
+
+ComponentConfigDialog = function(){};
+ComponentConfigDialog.prototype = {
+	show: function(uuid){
+		
 	} //show
 };

@@ -1,5 +1,6 @@
 package org.jaeyo.dde.dataflow.component;
 
+import java.util.Properties;
 import java.util.UUID;
 
 import org.jaeyo.dde.dataflow.component.processor.Input;
@@ -12,6 +13,7 @@ public abstract class Component {
 	private int x;
 	private int y;
 	private String name;
+	private Properties config;
 
 	public Component(int x, int y, String name) {
 		this.x = x;
@@ -41,6 +43,14 @@ public abstract class Component {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Properties getConfig() {
+		return config;
+	}
+
+	public void setConfig(Properties config) {
+		this.config = config;
 	}
 
 	public JSONObject getJson(){

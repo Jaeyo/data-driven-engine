@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.jaeyo.dde.common.Util;
@@ -53,10 +52,6 @@ public class FileReader extends OutProcessor{
 	@Override
 	public void beforeStop() {
 		System.out.println("FileReader stopped");
-	}
-
-	@Override
-	public void config(Properties config) {
 	}
 
 	@Override

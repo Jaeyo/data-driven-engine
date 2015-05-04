@@ -1,6 +1,5 @@
 package org.jaeyo.dde.dataflow.component.processor;
 
-import java.util.Properties;
 import java.util.UUID;
 
 import org.jaeyo.dde.dataflow.component.Component;
@@ -48,5 +47,4 @@ public abstract class Processor extends Component{
 	public abstract void job();
 	public abstract void beforeStart();
 	public abstract void beforeStop();
-	public abstract void config(Properties config);
 } //interface

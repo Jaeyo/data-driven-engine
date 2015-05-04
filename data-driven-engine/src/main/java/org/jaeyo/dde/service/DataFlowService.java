@@ -1,5 +1,8 @@
 package org.jaeyo.dde.service;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -55,6 +58,18 @@ public class DataFlowService {
 	public JSONObject getDataFlowMap(){
 		return dataFlow.getDataFlowMapJson();
 	} //getDataFlowMap
+	
+	public JSONObject getConfig(String uuid) throws NotExistsException{
+		Component component = dataFlow.getComponent(UUID.fromString(uuid));
+		Properties config = component.getConfig();
+		JSONObject configJson = new JSONObject();
+		for(Entry<Object, Object> entry : config.entrySet()){
+			String key = entry.getKey()+"";
+			String value = entry.getValue()+"";
+			configJson.put(key, value);
+		} //for
+		return configJson;
+	} //getConfig
 	
 	private Component createNewComponentInstance(String type, String name, int x, int y) throws UnknownComponentException {
 		if("ConsolePrinter".equals(type)){

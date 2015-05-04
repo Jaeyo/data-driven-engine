@@ -1,12 +1,14 @@
 package org.jaeyo.dde.controller;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.jaeyo.dde.exception.UnknownComponentException;
 import org.jaeyo.dde.service.DataFlowService;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +88,25 @@ public class DataFlowController {
 			return new JSONObject().put("success", "0").put("msg", msg).toString();
 		} //catch
 	} //addConnection
+	
+	@RequestMapping(value = "/DataFlow/Config/{uuid}", method = RequestMethod.GET)
+	public @ResponseBody String getConfig(@PathVariable("uuid") String uuid){
+		try {
+			return new JSONObject()
+				.put("success", 1)
+				.put("config", dataFlowService.getConfig(uuid))
+				.toString();
+		} catch (JSONException | NotExistsException e) {
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", 0).put("msg", msg).toString();
+		} //catch
+	} //config
+	
+	@RequestMapping(value = "/DataFlow/Config/{uuid}", method = RequestMethod.PUT)
+	public @ResponseBody String setConfig(@PathVariable("uuid") String uuid, HttpServletRequest request){
+		TODO IMME
+	} //config
 	
 	@RequestMapping(value = "/DataFlow/Map", method = RequestMethod.GET)
 	public @ResponseBody String map() {
