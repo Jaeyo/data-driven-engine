@@ -19,9 +19,11 @@ JsPlumbWrapper.prototype = {
 		this.instance.draggable(target, { 
 			grid: [20, 20],
 			stop: function(e){
-				var x = e.offsetX;
-				var y = e.offsetY;
-				var uuid = $(this).attr("id");
+				//var x = e.offsetX;
+				//var y = e.offsetY;
+				var x = target.css('left').replace('px', '');
+				var y = target.css('top').replace('px', '');
+				var uuid = $(this).attr('id');
 				controller.updateComponent(uuid, x, y);
 			}
 		});
@@ -66,10 +68,8 @@ ServerAdapter.prototype = {
 	addConnection: function(sourceId, targetId, onSuccess){
 		this.ajaxCall('/DataFlow/AddConnection/' + sourceId + '/' + targetId, 'post', {}, onSuccess);
 	}, //addConnection
-	getMap: function(){
-		this.ajaxCall('/DataFlow/Map', 'get', {}, function(response){
-			console.log(response);
-		});
+	getMap: function(onSuccess){
+		this.ajaxCall('/DataFlow/Map', 'get', {}, onSuccess);
 	}
 }; //ServerAdapter
 var serverAdapter = new ServerAdapter();
@@ -77,33 +77,39 @@ var serverAdapter = new ServerAdapter();
 //-------------------------------------------------------------------------------------
 
 Model = function(){
-	this.componentMap = [];
+	this.componentMap = new js_cols.HashMap();
 }; //INIT
 Model.prototype = {
 	addComponent: function(component){
-		this.componentMap[component.getUUID()] = component;
+		this.componentMap.insert(component.getUUID(), component);
 	}, //addComponent
 	getInputableComponents: function(){
-		var retArr = [];
-		for(var uuid in this.componentMap){
-			var component = this.componentMap[uuid];
+		var inputableComponents = new js_cols.LinkedList();
+		this.componentMap.forEach(function(component, uuid, map){
 			if(component.isInputable())
-				retArr.push(component);
-		} //for uuid
-		return retArr;
+				inputableComponents.addLast(component);
+		});
+		return inputableComponents;
 	}, //getInputableComponents
 	getOutputableComponents: function(){
-		var retArr = [];
-		for(var uuid in this.componentMap){
-			var component = this.componentMap[uuid];
-			if(component.isOutputable())
-				retArr.push(component);
-		} //for uuid
-		return retArr;
+		var outputableComponents = new js_cols.LinkedList();
+		this.componentMap.forEach(function(component, uuid, map){
+			if(component.isOUtputable())
+				outputableComponents.addLast(component);
+		});
+		return outputableComponents;
 	}, //getOutputableComponents
 	getComponent: function(uuid){
-		return this.componentMap[uuid];
-	} //getComponent
+		return this.componentMap.get(uuid);
+	}, //getComponent
+	removeAllUUIDs: function(){
+		var uuids = new js_cols.LinkedList();
+		this.componentMap.forEach(function(component, uuid, map){
+			uuids.addLast(uuid);
+		});
+		this.componentMap.clear();
+		return uuids;
+	} //removeAll
 }; //Model
 
 //-------------------------------------------------------------------------------------
@@ -118,7 +124,12 @@ View.prototype = {
 		componentDom.css({ left : x, top : y });
 		jsPlumbWrapper.draggable(componentDom);
 		$("#componentContainerDiv").append(componentDom);
-	} //addComponent
+	}, //addComponent
+	removeComponents: function(uuids){
+		uuids.forEach(function(uuid, key, list){
+			$("#" + uuid).remove();
+		});
+	} //removeCompoents
 }; //View
 
 //-------------------------------------------------------------------------------------
@@ -128,9 +139,6 @@ Controller = function(){
 	this.view = new View();
 }; //INIT
 Controller.prototype = {
-	clearComponents: function(){
-		//TODO
-	}, //clearComponents
 	addComponent: function(component){
 		this.model.addComponent(component);
 		this.view.addComponent(component);
@@ -145,7 +153,36 @@ Controller.prototype = {
 	}, //viewConnectTargetList
 	connect: function(sourceUUID, targetUUID){
 		jsPlumbWrapper.connect(sourceUUID, targetUUID);
-	} //connect
+	}, //connect
+	clearMap: function(){
+		var uuids = this.model.removeAllUUIDs();
+		this.view.removeComponents(uuids);
+	}, //clearMap
+	refreshMap: function(){
+		this.clearMap();
+		serverAdapter.getMap(function(response){
+			if(response.success != 1){
+				console.log('error');
+				console.log(response);
+				return;
+			} //if
+			var componentsJson = response.map.components;
+			var linesJson = response.map.lines;
+			
+			for(var i=0; i<componentsJson.length; i++){
+				var component = new Component(
+						componentsJson[i].name,
+						componentsJson[i].type,
+						componentsJson[i].uuid,
+						componentsJson[i].x,
+						componentsJson[i].y,
+						componentsJson[i].inputable,
+						componentsJson[i].outputable);
+				controller.addComponent(component);
+			} //for i
+			//TODO handle linesJson
+		});
+	} //refreshMap
 }; //Controller
 var controller  = new Controller();
 
@@ -220,10 +257,10 @@ ComponentView.prototype = {
 	}, //getDom
 	viewConnectTargetList: function(myUUID, inputableComponents){
 		var connectTargetListHtml = "";
-		for(var i=0; i<inputableComponents.length; i++){
+		inputableComponents.forEach(function(component, key, list){
 			connectTargetListHtml +=
-				'<a href="#" onclick="controller.connect(\'' + myUUID + '\', \'' + inputableComponents[i].getUUID() + '\')">' + inputableComponents[i].getName() + '</a><br />';
-		} //for i
+				'<a href="#" onclick="controller.connect(\'' + myUUID + '\', \'' + component.getUUID() + '\')">' + component.getName() + '</a><br />';
+		});
 		$('#' + myUUID).find(".connect-target-list")[0].innerHTML = connectTargetListHtml;
 	} //viewConnectTargetList
 }; //ComponentView
@@ -233,6 +270,7 @@ ComponentView.prototype = {
 Component = function(name, type, uuid, x, y, inputable, outputable){
 	this.model = new ComponentModel(name, type, uuid, x, y, inputable, outputable);
 	this.view = new ComponentView(name, type, uuid);
+	this.config = new ComponentConfig();
 }; //INIT
 Component.prototype = {
 	connect: function(targetComponent){
@@ -249,11 +287,14 @@ Component.prototype = {
 	}, //addConnection
 	viewConnectTargetList: function(inputableComponents){
 		var myUUID = this.getUUID();
-		inputableComponents = inputableComponents.filter(function(component){ 
+		inputableComponents = inputableComponents.filter(function(component, key, list){ 
 			return component.getUUID() != myUUID;
 		});
 		this.view.viewConnectTargetList(myUUID, inputableComponents);
 	}, //viewConnectTargetList
+	showConfig: function(){
+		this.config.showDialog();
+	}, //showConfig
 	getDom: function(){
 		return this.view.getDom();
 	}, //getDom
@@ -323,4 +364,40 @@ ComponentConfig.prototype = {
 		var configMap = this.model.getConfig();
 		this.view.showDialog(configMap);
 	} //showDialog
-};
+}; //ComponentConfig
+
+//-------------------------------------------------------------------------------------
+
+ConnectionConfigModel = function(){
+	this.connectionMap = new js_cols.HashMap();
+}; //ConnectionConfigModel
+ConnectionConfigModel.prototype = {
+	set: function(key, value){
+		this.connectionMap.set(key, value);
+	}, //set
+	get: function(key){
+		return this.connectionMap.get(key);
+	}, //get
+	getConnectionMap: function(){
+		return this.connectionMap;
+	} //getConnectionMap
+}; //ConnectionConfigModel
+
+//-------------------------------------------------------------------------------------
+
+ConnectionConfigView = function(){
+	//TODO IMME
+}; //ConnectionConfigView
+ConnectionConfigView.prototype = {
+	//TODO IMME
+}; //COnnectionConfigView
+
+//-------------------------------------------------------------------------------------
+
+ConnectionConfig = function(){
+	this.model = new ConnectionConfigModel();
+	this.view = new ConnectionConfigView();
+} //INIT
+ConnectionConfig.prototype = {
+	//TODO IMME
+}; //ConnectionConfig

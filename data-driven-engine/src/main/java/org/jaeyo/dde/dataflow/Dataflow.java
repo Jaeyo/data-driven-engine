@@ -64,7 +64,7 @@ public class Dataflow{
 			} //if
 		} //for component
 		
-		return new JSONObject().put("component", componentsJson).put("lines", linesJson);
+		return new JSONObject().put("components", componentsJson).put("lines", linesJson);
 	} //getDataFlowMapJson
 	
 	private Processor getProcessorComponent(UUID id) throws InvalidOperationException, NotExistsException{

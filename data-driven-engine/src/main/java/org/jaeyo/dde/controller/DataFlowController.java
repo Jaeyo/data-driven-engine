@@ -88,6 +88,9 @@ public class DataFlowController {
 	
 	@RequestMapping(value = "/DataFlow/Map", method = RequestMethod.GET)
 	public @ResponseBody String map() {
-		return dataFlowService.getDataFlowMap().toString(4);
+		return new JSONObject()
+			.put("success", 1)
+			.put("map", dataFlowService.getDataFlowMap())
+			.toString();
 	} // addComponent
 } //class
