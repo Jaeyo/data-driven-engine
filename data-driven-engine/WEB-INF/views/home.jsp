@@ -80,6 +80,7 @@ hr {
 </head>
 <body>
 
+<script src="/resource/js/js_cols.min.js"></script>
 <script src="/resource/js/home.js"></script>
 <script type="text/javascript">
 var addFileReaderBtn = new ComponentBtn('FileReader');

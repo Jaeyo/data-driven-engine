@@ -1,3 +1,7 @@
+//js_cols.require('js_cols.HashMap');
+
+//-------------------------------------------------------------------------------------
+
 JsPlumbWrapper = function(){
 	this.instance = jsPlumb.getInstance({
 		ConnectionOverlays: [
@@ -260,3 +264,63 @@ Component.prototype = {
 	isInputable: function(){ return this.model.isInputable(); },
 	isOutputable: function(){ return this.model.isOutputable(); }
 }; //Component
+
+//-------------------------------------------------------------------------------------
+
+ComponentConfigModel = function(){
+	this.configMap = new js_cols.HashMap();
+};
+ComponentConfigModel.prototype = {
+	set: function(key, value){
+		this.configMap.insert(key, value);
+	}, //set
+	get: function(key){
+		return this.configMap.get(key);
+	}, //get
+	getConfig: function(){
+		return this.configMap;
+	} //getConfig
+};
+
+//-------------------------------------------------------------------------------------
+
+ComponentConfigView = function(){
+};
+ComponentConfigView.prototype = {
+	showDialog: function(configMap){
+		var html = '<div class="component-config-dialog">';
+		configMap.forEach(function(value, key, map){
+			html += '<label>' + key + '</label>';
+			html += '<input type="text" value="' + value + '" />';
+		});
+		html += '</div>';
+		var dialog = null;
+		dialog = $(html).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				"OK": function(){ console.log("ok"); },
+				"Cancel": function(){
+					console.log("cancel");
+					dialog.dialog("close");
+				}
+			} //buttons
+		});
+		dialog.dialog("open");
+	} //showDialog
+};
+
+//-------------------------------------------------------------------------------------
+
+ComponentConfig = function(){
+	this.model = new ComponentConfigModel();
+	this.view = new ComponentConfigView();
+}; //INIT
+ComponentConfig.prototype = {
+	showDialog: function(){
+		var configMap = this.model.getConfig();
+		this.view.showDialog(configMap);
+	} //showDialog
+};
