@@ -2,6 +2,7 @@ package org.jaeyo.dde.dataflow;
 
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.jaeyo.dde.connectionqueue.ConnectionQueue;
@@ -48,6 +49,21 @@ public class Dataflow{
 		
 		return conn;
 	} //addConnection
+	
+	public boolean unconnect(UUID source, UUID target) throws NotExistsException, InvalidOperationException{
+		Output sourceComponent = getOutComponent(source);
+		Input targetComponent = getInComponent(target);
+		
+		Set<ConnectionQueue> outputConns = sourceComponent.getOutputRouter().getOutputConnections();
+		for(ConnectionQueue conn : outputConns){
+			if(conn.getSource().equals(source) && conn.getTarget().equals(target)){
+				sourceComponent.getOutputRouter().removeOutputConnection(conn);
+				targetComponent.removeInputConnection(conn);
+				return true;
+			} //if
+		} //for conn
+		return false;
+	} //unconnect
 	
 	public JSONObject getDataFlowMapJson(){
 		JSONArray componentsJson = new JSONArray();

@@ -74,7 +74,7 @@ hr {
 	color : black;
 	border-radius : 0.3em;
 	padding-top: 0.3em;
-	padding-bottom: 0.3em;
+	padding-bottom: 1em;
 	padding-left: 1.5em;
 	padding-right: 1.5em;
 	float : left;

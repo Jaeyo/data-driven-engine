@@ -1,5 +1,8 @@
 package org.jaeyo.dde.controller;
 
+import java.util.Map;
+import java.util.Properties;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
@@ -7,6 +10,7 @@ import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.jaeyo.dde.exception.UnknownComponentException;
+import org.jaeyo.dde.exception.UnknownConfigException;
 import org.jaeyo.dde.service.DataFlowService;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +37,7 @@ public class DataFlowController {
 		return new ModelAndView("home");
 	} //INIT
 	
-	@RequestMapping(value = "/DataFlow/AddComponent/{type}", method = RequestMethod.POST)
+	@RequestMapping(value = "/DataFlow/Component/{type}", method = RequestMethod.POST)
 	public @ResponseBody String addComponent(
 			@PathVariable("type") String type,
 			@RequestParam("name") String name) {
@@ -43,14 +47,14 @@ public class DataFlowController {
 			retJson.put("success", 1);
 			retJson.put("component", component.getJson());
 			return retJson.toString();
-		} catch (UnknownComponentException e) {
+		} catch (Exception e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);
 			return new JSONObject().put("success", "0").put("msg", msg).toString();
 		} //catch
 	} // addComponent
 	
-	@RequestMapping(value = "/DataFlow/UpdateComponent/{uuid}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/DataFlow/Component/{uuid}", method = RequestMethod.PUT)
 	public @ResponseBody String updateComponent(
 			@PathVariable("uuid") String uuid,
 			@RequestParam(value = "x", required = false) String x,
@@ -61,7 +65,7 @@ public class DataFlowController {
 		try {
 			dataFlowService.updateComponent(uuid, xVal, yVal, name);
 			return new JSONObject().put("success", 1).toString();
-		} catch (NotExistsException e) {
+		} catch (Exception e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);
 			return new JSONObject().put("success", 0).put("msg", msg).toString();
@@ -75,19 +79,40 @@ public class DataFlowController {
 		return null;
 	} //startComponent
 	
-	@RequestMapping(value = "/DataFlow/AddConnection/{source}/{target}", method = RequestMethod.POST)
+	@RequestMapping(value = "/DataFlow/Connection/{source}/{target}", method = RequestMethod.POST)
 	public @ResponseBody String addConnection(
 			@PathVariable("source") String source, 
 			@PathVariable("target") String target) {
 		try {
 			dataFlowService.createNewConnection(source, target);
 			return new JSONObject().put("success", 1).toString();
-		} catch (NotExistsException | InvalidOperationException e) {
+		} catch (Exception e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);
 			return new JSONObject().put("success", "0").put("msg", msg).toString();
 		} //catch
 	} //addConnection
+	
+	@RequestMapping(value = "/DataFlow/Connection/{source}/{target}", method = RequestMethod.DELETE)
+	public @ResponseBody String removeConnection(
+			@PathVariable("source") String source,
+			@PathVariable("target") String target){
+		try {
+			boolean result = dataFlowService.removeConnection(source, target);
+			if(result == true){
+				return new JSONObject().put("success", 1).toString();
+			} else {
+				return new JSONObject()
+						.put("success", 0)
+						.put("msg", String.format("failed to find connection between %s and %s", source, target))
+						.toString();
+			} //if
+		} catch (Exception e) {
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", "0").put("msg", msg).toString();
+		} //catch
+	} //removeConnection
 	
 	@RequestMapping(value = "/DataFlow/Config/{uuid}", method = RequestMethod.GET)
 	public @ResponseBody String getConfig(@PathVariable("uuid") String uuid){
@@ -96,7 +121,7 @@ public class DataFlowController {
 				.put("success", 1)
 				.put("config", dataFlowService.getConfig(uuid))
 				.toString();
-		} catch (JSONException | NotExistsException e) {
+		} catch (Exception e) {
 			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(msg, e);
 			return new JSONObject().put("success", 0).put("msg", msg).toString();
@@ -105,7 +130,15 @@ public class DataFlowController {
 	
 	@RequestMapping(value = "/DataFlow/Config/{uuid}", method = RequestMethod.PUT)
 	public @ResponseBody String setConfig(@PathVariable("uuid") String uuid, HttpServletRequest request){
-		TODO IMME
+		Map<String, String[]> paramsMap = request.getParameterMap();
+		try {
+			dataFlowService.setConfig(uuid, paramsMap);
+			return new JSONObject().put("success", 1).toString();
+		} catch (Exception e) {
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", 0).put("msg", msg).toString();
+		} //catch
 	} //config
 	
 	@RequestMapping(value = "/DataFlow/Map", method = RequestMethod.GET)

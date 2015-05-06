@@ -1,6 +1,6 @@
 package org.jaeyo.dde.service;
 
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.UUID;
@@ -19,6 +19,7 @@ import org.jaeyo.dde.exception.AlreadyStoppedException;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.jaeyo.dde.exception.UnknownComponentException;
+import org.jaeyo.dde.exception.UnknownConfigException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +56,23 @@ public class DataFlowService {
 		dataFlow.connect(UUID.fromString(source), UUID.fromString(target));
 	} //createNewConnection
 	
+	public boolean removeConnection(String source, String target) throws NotExistsException, InvalidOperationException{
+		return dataFlow.unconnect(UUID.fromString(source), UUID.fromString(target));
+	} //removeConnection
+	
 	public JSONObject getDataFlowMap(){
 		return dataFlow.getDataFlowMapJson();
 	} //getDataFlowMap
+	
+	public void setConfig(String uuid, Map<String, String[]> paramsMap) throws NotExistsException, UnknownConfigException{
+		Properties config = new Properties();
+		for(Entry<String, String[]> entry : paramsMap.entrySet()){
+			String key = entry.getKey();
+			String value = entry.getValue()[0];
+			config.setProperty(key, value);
+		} //for entry
+		dataFlow.getComponent(UUID.fromString(uuid)).setConfig(config);
+	} //setConfig
 	
 	public JSONObject getConfig(String uuid) throws NotExistsException{
 		Component component = dataFlow.getComponent(UUID.fromString(uuid));

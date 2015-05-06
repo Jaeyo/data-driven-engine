@@ -39,4 +39,22 @@ public abstract class ConnectionQueue {
 	public abstract Event take();
 	public abstract boolean isEmpty();
 	public abstract UUID getId();
+
+	@Override
+	public int hashCode() {
+		return (source.toString() + target.toString()).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof ConnectionQueue){
+			ConnectionQueue connQueueObj = (ConnectionQueue) obj;
+			if(connQueueObj.source.equals(this.source) == false)
+				return false;
+			if(connQueueObj.target.equals(this.target) == false)
+				return false;
+			return true;
+		} //if
+		return false;
+	}
 } //interface

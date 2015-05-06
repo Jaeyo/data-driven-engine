@@ -41,6 +41,13 @@ public class OutputRouter {
 			conn.put(event.clone());
 	} //flowAway
 	
+	public Set<ConnectionQueue> getOutputConnections(){
+		Set<ConnectionQueue> retConns= Sets.newHashSet();
+		for(Set<ConnectionQueue> conns : router.values())
+			retConns.addAll(conns);
+		return retConns;
+	} //getOutputConnections
+	
 	public JSONArray getOutputConnectionJson(){
 		JSONArray json = new JSONArray();
 		for(Set<ConnectionQueue> connections : router.values())

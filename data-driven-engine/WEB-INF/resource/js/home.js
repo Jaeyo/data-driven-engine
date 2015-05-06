@@ -9,6 +9,12 @@ JsPlumbWrapper = function(){
 		    }]
 		]
 	});
+	this.instance.bind("connection", function(info, originalEvent){
+		serverAdapter.addConnection(info.sourceId, info.targetId);
+	});
+	this.instance.bind("connectionDetached", function(info, originalEvent){
+		serverAdapter.removeConnection(info.sourceId, info.targetId);
+	});
 	this.sourceEndPointOption = {
 		anchor: "Right",
 		endpoint: "Dot",
@@ -50,7 +56,6 @@ JsPlumbWrapper = function(){
 		maxConnections: -1,
 		dropOptions: { hoverClass: "hover", activeClass: "active" },
 		isTarget: true,
-		
 	}; //endPointOption
 }; //INIT
 JsPlumbWrapper.prototype = {
@@ -65,13 +70,15 @@ JsPlumbWrapper.prototype = {
 			}
 		});
 	
+		this.instance.makeSource(target, this.sourceEndPointOption);
+		this.instance.makeTarget(target, this.targetEndPointOption);
 		this.instance.addEndpoint(target, this.sourceEndPointOption);
 		this.instance.addEndpoint(target, this.targetEndPointOption);
 	}, //draggable
 	connect: function(sourceId, targetId){
 		this.instance.connect({
 			source: sourceId,
-			target: targetId
+			target: targetId,
 		});
 	}
 }; //JsPlumbWrapper
@@ -96,26 +103,57 @@ ServerAdapter.prototype = {
 		});
 	}, //ajaxCall
 	addComponent: function(type, name, callback){
-		this.ajaxCall('/DataFlow/AddComponent/' + type, 'post', {name: name}, function(response){
+		this.ajaxCall('/DataFlow/Component/' + type, 'post', {name: name}, function(response){
 			callback(response);
 		});
 	}, //addComponent
 	updateComponent: function(uuid, x, y){
-		this.ajaxCall('/DataFlow/UpdateComponent/' + uuid, 'put', {x: x, y: y}, function(response){
+		this.ajaxCall('/DataFlow/Component/' + uuid, 'put', {x: x, y: y}, function(response){
 			//do nothing
 		});
 	}, //updateComponent
-	addConnection: function(sourceId, targetId, onSuccess){
-		this.ajaxCall('/DataFlow/AddConnection/' + sourceId + '/' + targetId, 'post', {}, onSuccess);
+	addConnection: function(sourceId, targetId){
+		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'post', {}, function(response){
+			if(response.success != 1){
+				console.log('error');
+				console.log(response);
+				return;
+			} //if
+		});
 	}, //addConnection
+	removeConnection: function(sourceId, targetId){
+		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'delete', {}, function(response){
+			if(response.success != 1){
+				console.log('error');
+				console.log(repsonse);
+			} //if
+		});
+	}, //removeConnection
 	getMap: function(onSuccess){
 		this.ajaxCall('/DataFlow/Map', 'get', {}, onSuccess);
 	}, //getMap
 	rename: function(uuid, name){
-		this.ajaxCall('/DataFlow/UpdateComponent/' + uuid, 'put', {name: name}, function(response){
+		this.ajaxCall('/DataFlow/Component/' + uuid, 'put', {name: name}, function(response){
 			//do nothing
 		});
-	} //rename
+	}, //rename
+	getConfig: function(uuid, onSuccess){
+		var config = new js_cols.HashMap();
+		this.ajaxCall('/DataFlow/Config/' + uuid, 'get', {}, onSuccess);
+	}, //getConfig
+	setConfig: function(uuid, configMap){
+		var config = {};
+		configMap.forEach(function(value, key, map){
+			config[key] = value;
+		});
+		this.ajaxCall('/DataFlow/Config/' + uuid, 'put', config, function(response){
+			if(response.success != 1){
+				console.log('error');
+				console.log(response);
+				return;
+			} //if
+		});
+	} //setConfig
 }; //ServerAdapter
 var serverAdapter = new ServerAdapter();
 
@@ -197,7 +235,10 @@ Controller.prototype = {
 	}, //clearMap
 	showRenameDialog: function(uuid){
 		this.model.getComponent(uuid).showRenameDialog();
-	}, //viewRenameDialog
+	}, //showRenameDialog
+	showConfigDialog: function(uuid){
+		this.model.getComponent(uuid).showConfigDialog();
+	}, //showConfigDialog
 	connect: function(sourceUUID, targetUUID){
 		this.model.getComponent(sourceUUID).connect(targetUUID);
 	}, //connect
@@ -293,7 +334,7 @@ ComponentView = function(name, type, uuid){
 				'<hr />' +
 				'<a href="#" class="operation">start</a><br />' +
 				'<a href="#" class="operation">stop</a><br />' +
-				'<a href="#" class="operation">configuration</a><br />' +
+				'<a href="#" class="operation" onclick="controller.showConfigDialog(\''+uuid+'\')">configuration</a><br />' +
 			'</div>';
 		this.dom = $(componentHtml);
 }; //INIT
@@ -303,7 +344,10 @@ ComponentView.prototype = {
 	}, //getDom
 	showRenameDialog: function(myUUID, oldName){
 		new ComponentRenameDialog().show(myUUID, oldName);
-	} //showRenameDialog
+	}, //showRenameDialog
+	showConfigDialog: function(myUUID){
+		new ComponentConfigDialog().show(myUUID);
+	} //showConfigDialog
 }; //ComponentView
 
 //-------------------------------------------------------------------------------------
@@ -315,10 +359,13 @@ Component = function(name, type, uuid, x, y, inputable, outputable){
 Component.prototype = {
 	connect: function(targetUUID){
 		jsPlumbWrapper.connect(this.getUUID(), targetUUID);
-	}, //addConnection
+	}, //connect
 	showRenameDialog: function(){
 		this.view.showRenameDialog(this.model.getUUID(), this.model.getName());
 	}, //showRenameDialog
+	showConfigDialog: function(){
+		this.view.showConfigDialog(this.model.getUUID());
+	}, //showConfigDialog
 	showConfig: function(){
 		this.config.showDialog();
 	}, //showConfig
@@ -367,9 +414,68 @@ ComponentRenameDialog.prototype = {
 
 //-------------------------------------------------------------------------------------
 
-ComponentConfigDialog = function(){};
+ComponentConfigDialog = function(){ };
 ComponentConfigDialog.prototype = {
 	show: function(uuid){
+		var parseConfigMapFunc = this.parseConfigMap;
+		var makeHtmlFunc = this.makeHtml;
+		var makeDialogFunc = this.makeDialog;
+		serverAdapter.getConfig(uuid, function(response){
+			var configMap = parseConfigMapFunc(response);
+			var html = makeHtmlFunc(configMap);
+			var dialog = makeDialogFunc(uuid, html);
+			dialog.dialog("open");
+		});
+	}, //show
+	parseConfigMap: function(response){
+		var configMap = new js_cols.HashMap();
+		if(response.success != 1){
+			console.log('error');
+			console.log(response);
+			return null;
+		} //if
 		
-	} //show
+		for(var key in response.config){
+			if(response.config.hasOwnProperty(key) == false)
+				continue;
+			configMap.insert(key, response.config[key]);
+		} //for key
+		return configMap;
+	}, //parseConfigMap
+	makeHtml: function(configMap){
+		var html = '<div class="component-config-dialog">';
+		configMap.forEach(function(value, key, map){
+			html += '<label class="component-config-key">'+key+'</label><br />';
+			html += '<input class="component-config-value" type="text" style="width:300px;" value="'+value+'" />';
+		});
+		html += '</div>';
+		return html;
+	}, //makeHtml
+	makeDialog: function(uuid, html){
+		var dialog = null;
+		dialog = $(html).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				"OK": function(){
+					var newConfig = new js_cols.HashMap();
+					var keys = $(".component-config-key");
+					var values = $(".component-config-value");
+					for(var i=0; i<keys.length; i++){
+						var key = $(keys[i]).text();
+						var value = $(values[i]).val();
+						newConfig.insert(key, value);
+					} //for i
+					serverAdapter.setConfig(uuid, newConfig);
+					dialog.dialog("destroy").remove();
+				},
+				"Cancel": function(){
+					dialog.dialog("destroy").remove();
+				}
+			} //buttons
+		});
+		return dialog;
+	} //makeDialog
 };

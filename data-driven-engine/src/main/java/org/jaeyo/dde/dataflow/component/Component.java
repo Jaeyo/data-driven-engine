@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.jaeyo.dde.dataflow.component.processor.Input;
 import org.jaeyo.dde.dataflow.component.processor.Output;
+import org.jaeyo.dde.exception.UnknownConfigException;
 import org.json.JSONObject;
 
 public abstract class Component {
@@ -13,7 +14,6 @@ public abstract class Component {
 	private int x;
 	private int y;
 	private String name;
-	private Properties config;
 
 	public Component(int x, int y, String name) {
 		this.x = x;
@@ -45,14 +45,6 @@ public abstract class Component {
 		this.name = name;
 	}
 
-	public Properties getConfig() {
-		return config;
-	}
-
-	public void setConfig(Properties config) {
-		this.config = config;
-	}
-
 	public JSONObject getJson(){
 		return new JSONObject()
 			.put("uuid", getId().toString())
@@ -66,4 +58,6 @@ public abstract class Component {
 	
 	public abstract UUID getId();
 	public abstract String getComponentType();
+	public abstract Properties getConfig();
+	public abstract void setConfig(Properties config) throws UnknownConfigException;
 }
