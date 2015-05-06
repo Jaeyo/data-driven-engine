@@ -117,6 +117,7 @@ ServerAdapter.prototype = {
 			if(response.success != 1){
 				console.log('error');
 				console.log(response);
+				controller.refreshMap();
 				return;
 			} //if
 		});
@@ -126,6 +127,8 @@ ServerAdapter.prototype = {
 			if(response.success != 1){
 				console.log('error');
 				console.log(repsonse);
+				controller.refreshMap();
+				return;
 			} //if
 		});
 	}, //removeConnection
@@ -150,6 +153,7 @@ ServerAdapter.prototype = {
 			if(response.success != 1){
 				console.log('error');
 				console.log(response);
+				controller.refreshMap();
 				return;
 			} //if
 		});
