@@ -10,7 +10,10 @@ JsPlumbWrapper = function(){
 		]
 	});
 	this.instance.bind("connection", function(info, originalEvent){
-		serverAdapter.addConnection(info.sourceId, info.targetId);
+		serverAdapter.addConnection(info.sourceId, info.targetId, function(response){
+			if(response.success != 1)
+				jsPlumbWrapper.detach(info.sourceId, info.targetId);
+		}); 
 	});
 	this.instance.bind("connectionDetached", function(info, originalEvent){
 		serverAdapter.removeConnection(info.sourceId, info.targetId);
@@ -70,17 +73,28 @@ JsPlumbWrapper.prototype = {
 			}
 		});
 	
-		this.instance.makeSource(target, this.sourceEndPointOption);
-		this.instance.makeTarget(target, this.targetEndPointOption);
-		this.instance.addEndpoint(target, this.sourceEndPointOption);
-		this.instance.addEndpoint(target, this.targetEndPointOption);
+		var component = controller.getComponent(uuid);
+		if(component.isInputable() == true){
+			this.instance.makeTarget(target, this.targetEndPointOption);
+			this.instance.addEndpoint(target, this.targetEndPointOption);
+		} //if
+		if(component.isOutputable() == true){
+			this.instance.makeSource(target, this.sourceEndPointOption);
+			this.instance.addEndpoint(target, this.sourceEndPointOption);
+		} //if
 	}, //draggable
 	connect: function(sourceId, targetId){
 		this.instance.connect({
 			source: sourceId,
-			target: targetId,
+			target: targetId
 		});
-	}
+	}, //connect
+	detach: function(sourceId, targetId){
+		this.instance.detach({
+			source: sourceId,
+			target: targetId
+		})
+	} //detach
 }; //JsPlumbWrapper
 var jsPlumbWrapper = new JsPlumbWrapper();
 
@@ -117,17 +131,20 @@ ServerAdapter.prototype = {
 			if(response.success != 1){
 				console.log('error');
 				console.log(response);
-				controller.refreshMap();
+				//controller.refreshMap();
 				return;
 			} //if
 		});
+	}, //addConnection
+	addConnection: function(sourceId, targetId, onSuccess){
+		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'post', {}, onSuccess);
 	}, //addConnection
 	removeConnection: function(sourceId, targetId){
 		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'delete', {}, function(response){
 			if(response.success != 1){
 				console.log('error');
-				console.log(repsonse);
-				controller.refreshMap();
+				console.log(response);
+//				controller.refreshMap();
 				return;
 			} //if
 		});
@@ -230,6 +247,9 @@ Controller.prototype = {
 		this.model.addComponent(component);
 		this.view.addComponent(component);
 	}, //addComponent
+	getComponent: function(uuid){
+		return this.model.getComponent(uuid);
+	}, //getComponent
 	updateComponent: function(uuid, x, y){
 		serverAdapter.updateComponent(uuid, x, y);
 	}, //updateComponent
