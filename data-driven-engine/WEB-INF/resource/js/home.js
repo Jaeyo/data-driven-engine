@@ -258,8 +258,20 @@ Controller.prototype = {
 		this.view.removeComponents(uuids);
 	}, //clearMap
 	showRenameDialog: function(uuid){
-		this.model.getComponent(uuid).showRenameDialog();
+//		this.model.getComponent(uuid).showRenameDialog();
+		//TODO IMME
+		var component = controller.getComponent(uuid);
+		var html = 
+			'<input type="text" value="' + component.getName() + '" />' + 
+			'<button class="btn" onclick="controller.rename(\''+uuid+'\')">edit</button>';
+		component.getDom().find(".component-title-area")[0].innerHTML = html;
 	}, //showRenameDialog
+	rename: function(uuid){
+		var component = controller.getComponent(uuid);
+		var name = component.getDom.find("input").val();
+		serverAdapter.rename(uuid, name);
+		controller.refreshMap();
+	},
 	showConfigDialog: function(uuid){
 		this.model.getComponent(uuid).showConfigDialog();
 	}, //showConfigDialog
@@ -351,7 +363,9 @@ ComponentModel.prototype = {
 ComponentView = function(name, type, uuid){
 	var componentHtml = 
 			'<div class="component" id="' + uuid + '">' + 
-				'<h6>' + name + '</h6><a href="#" onclick="controller.showRenameDialog(\''+uuid+'\')"><small>[edit]</small></a>' + 
+//				'<div class="component-title-area">' +
+					'<h6>' + name + '</h6><a href="#" onclick="controller.showRenameDialog(\''+uuid+'\')"><small>[edit]</small></a>' + 
+//				'</div>' +
 				'<hr />' +
 				'<small>type : ' + type + '</small><br />' +
 				'<small style="white-space:nowrap;">uuid : ' + uuid + '</small>' +
