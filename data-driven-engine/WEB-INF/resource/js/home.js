@@ -1,65 +1,40 @@
+var format = function(str, binding){
+	for(var key in binding){
+		var regEx = new RegExp("\\{" + key + "\\}", "gm");
+		str = str.replace(regEx, binding[key]);
+	} //for key
+	return str;
+}; //format
+
 JsPlumbWrapper = function(){
 	this.instance = jsPlumb.getInstance({
+		Endpoint: ["Dot", {radius: 2}],
+		HoverPaintStyle: {strokeStyle: "#1e8151", lineWidth: 2},
 		ConnectionOverlays: [
-		    [ "Arrow", { location: 1 } ],
-		    [ "Label", {
-		    	location: 0.1,
-		    	id: "label",
-		    	cssClass: "aLabel"
-		    }]
-		]
+		    [ "Arrow", { 
+		    	location: 1,
+		    	id: "arrow",
+		    	length: 14,
+		    	foldback: 0.8
+		    } ]
+		],
+		Container: "componentContainerDiv"
 	});
+	
+	this.instance.bind("click", function(info, originalEvent){
+		jsPlumbWrapper.detach(info.sourceId, info.targetId);
+	});
+	
 	this.instance.bind("connection", function(info, originalEvent){
 		serverAdapter.addConnection(info.sourceId, info.targetId, function(response){
 			if(response.success != 1)
 				jsPlumbWrapper.detach(info.sourceId, info.targetId);
 		}); 
 	});
+	
 	this.instance.bind("connectionDetached", function(info, originalEvent){
 		serverAdapter.removeConnection(info.sourceId, info.targetId);
 	});
-	this.sourceEndPointOption = {
-		anchor: "Right",
-		endpoint: "Dot",
-		paintStyle: {
-			strokeStyle: "#7AB02C",
-			fillStyle: "transparent",
-			radius: 7,
-			lineWidth: 3
-		},
-		isSource: true,
-		connector: [ "Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true } ],
-		connectorStyle: {
-			lineWidth: 4,
-			strokeStyle: "#61B7CF",
-			joinstyle: "round",
-			outlineColor: "white",
-			outlineWidth: 2
-		},
-		hoverPaintStyle: {
-			fillStyle: "#216477",
-			strokeStyle: "#216477"
-		},
-		connectorHoverStyle: {
-			lineWidth: 4,
-			strokeStyle: "#216477",
-			outlineWidth: 2,
-			outlineColor: "white"
-		},
-		dragOptions: {}
-	};
-	this.targetEndPointOption = {
-		anchor: "Left",
-		endpoint: "Dot",
-		paintStyle: { fillStyle: "#7AB02C", radius: 11 },
-		hoverPaintStyle: {
-			fillStyle: "#216477",
-			strokeStyle: "#216477"
-		},
-		maxConnections: -1,
-		dropOptions: { hoverClass: "hover", activeClass: "active" },
-		isTarget: true,
-	}; //endPointOption
 }; //INIT
 JsPlumbWrapper.prototype = {
 	draggable: function(target){
@@ -75,12 +50,22 @@ JsPlumbWrapper.prototype = {
 	
 		var component = controller.getComponent(uuid);
 		if(component.isInputable() == true){
-			this.instance.makeTarget(target, this.targetEndPointOption);
-			this.instance.addEndpoint(target, this.targetEndPointOption);
+			this.instance.makeTarget(target, {
+				dropOptions: { hoverClass: "dragHover" },
+				anchor: "Continuous",
+				allowLoopback: false
+			});
 		} //if
 		if(component.isOutputable() == true){
-			this.instance.makeSource(target, this.sourceEndPointOption);
-			this.instance.addEndpoint(target, this.sourceEndPointOption);
+			this.instance.makeSource(target, {
+				filter: ".end-point",
+				anchor: "Continuous",
+				connector: ["StateMachine", { curviness: 20 }],
+				connectorStyle: {strokeStyle: "#5c96bc", lineWidth: 2, outlineColor: "transparent", outlineWidth: 4},
+				maxConnections: 1
+			});
+		} else{
+			target.find(".end-point").hide();
 		} //if
 	}, //draggable
 	connect: function(sourceId, targetId){
@@ -126,12 +111,29 @@ ServerAdapter.prototype = {
 			//do nothing
 		});
 	}, //updateComponent
+	startComponent: function(uuid){
+		this.ajaxCall('/DataFlow/StartComponent/' + uuid, 'put', {}, function(response){
+			if(response.success != 1){
+				console.log('error');
+				console.log(response);
+				return;
+			} //if
+		});
+	}, //startComponent
+	stopComponent: function(uuid){
+		this.ajaxCall('/DataFlow/StopComponent/' + uuid, 'put', {}, function(response){
+			if(response.success != 1){
+				console.log('error');
+				console.log(response);
+				return;
+			} //if
+		});
+	}, //stopComponent
 	addConnection: function(sourceId, targetId){
 		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'post', {}, function(response){
 			if(response.success != 1){
 				console.log('error');
 				console.log(response);
-				//controller.refreshMap();
 				return;
 			} //if
 		});
@@ -198,7 +200,7 @@ Model.prototype = {
 	getOutputableComponents: function(){
 		var outputableComponents = new js_cols.LinkedList();
 		this.componentMap.forEach(function(component, uuid, map){
-			if(component.isOUtputable())
+			if(component.isOutputable())
 				outputableComponents.addLast(component);
 		});
 		return outputableComponents;
@@ -253,22 +255,25 @@ Controller.prototype = {
 	updateComponent: function(uuid, x, y){
 		serverAdapter.updateComponent(uuid, x, y);
 	}, //updateComponent
+	startComponent: function(uuid){
+		serverAdapter.startComponent(uuid);
+	}, //startComponent
+	stopComponent: function(uuid){
+		serverAdapter.stopComponent(uuid);
+	}, //stopComponent
 	clearMap: function(){
 		var uuids = this.model.removeAllUUIDs();
 		this.view.removeComponents(uuids);
 	}, //clearMap
 	showRenameDialog: function(uuid){
-//		this.model.getComponent(uuid).showRenameDialog();
-		//TODO IMME
 		var component = controller.getComponent(uuid);
-		var html = 
-			'<input type="text" value="' + component.getName() + '" />' + 
-			'<button class="btn" onclick="controller.rename(\''+uuid+'\')">edit</button>';
-		component.getDom().find(".component-title-area")[0].innerHTML = html;
+		var renameTitleDom= $("#renameTitleTmpl").tmpl({name: component.getName(), uuid: uuid});
+		var renameTitleHtml = renameTitleDom.html();
+		component.getDom().find(".component-title-area")[0].innerHTML = renameTitleHtml;
 	}, //showRenameDialog
 	rename: function(uuid){
 		var component = controller.getComponent(uuid);
-		var name = component.getDom.find("input").val();
+		var name = component.getDom().find("input").val();
 		serverAdapter.rename(uuid, name);
 		controller.refreshMap();
 	},
@@ -361,20 +366,7 @@ ComponentModel.prototype = {
 //-------------------------------------------------------------------------------------
 
 ComponentView = function(name, type, uuid){
-	var componentHtml = 
-			'<div class="component" id="' + uuid + '">' + 
-//				'<div class="component-title-area">' +
-					'<h6>' + name + '</h6><a href="#" onclick="controller.showRenameDialog(\''+uuid+'\')"><small>[edit]</small></a>' + 
-//				'</div>' +
-				'<hr />' +
-				'<small>type : ' + type + '</small><br />' +
-				'<small style="white-space:nowrap;">uuid : ' + uuid + '</small>' +
-				'<hr />' +
-				'<a href="#" class="operation">start</a><br />' +
-				'<a href="#" class="operation">stop</a><br />' +
-				'<a href="#" class="operation" onclick="controller.showConfigDialog(\''+uuid+'\')">configuration</a><br />' +
-			'</div>';
-		this.dom = $(componentHtml);
+	this.dom = $("#componentTmpl").tmpl({uuid: uuid, type: type, name: name});
 }; //INIT
 ComponentView.prototype = {
 	getDom: function(){

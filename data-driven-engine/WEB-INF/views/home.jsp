@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<<c:set var="S" value="$" />
 <!DOCTYPE html>
 
 <html>
@@ -69,6 +70,7 @@ hr {
 }
 
 .component {
+	width: 200px;
 	margin : 0;
 	background-color : rgb(244, 244, 244);
 	color : black;
@@ -80,15 +82,39 @@ hr {
 	float : left;
 	position : absolute;
 }
+
+.component-body-area {
+	font-size: 80%;
+}
+
+.component-oper-area {
+	font-size: 80%;
+}
+
+.end-point {
+	position: absolute;
+	bottom: 37%;
+	right: 5px;
+	width: 1em;
+	height: 1em;
+	background-color: orange;
+	cursor: pointer;
+	box-shadow: 0 0 2px black;
+	-webkit-transition: -webkit-box-shadow 0.25s ease-in;
+	-moz-transition: -moz-box-shadow 0.25s ease-in;
+	transition: box-shadow 0.25s ease-in;
+}
 </style>
 
 </head>
 <body>
 
 <script src="/resource/js/js_cols.min.js"></script>
+<script src="/resource/js/jquery.tmpl.min.js"></script>
 <script src="/resource/js/home.js"></script>
 <script type="text/javascript">
 var addFileReaderBtn = new ComponentBtn('FileReader');
+var addRandomWordGeneratorBtn = new ComponentBtn('RandomWordGenerator');
 var addSimpleDeliverBtn = new ComponentBtn('SimpleDeliver');
 var addConsolePrinter = new ComponentBtn('ConsolePrinter');
 </script>
@@ -96,6 +122,7 @@ var addConsolePrinter = new ComponentBtn('ConsolePrinter');
 <div class="container">
 	<div class="component-menu-container">
 		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addFileReaderBtn.addComponent();">add FileReader</a>
+		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addRandomWordGeneratorBtn.addComponent();">add RandomWordGenerator</a>
 		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addSimpleDeliverBtn.addComponent();">add SimpleDeliver</a>
 		<a href="#" class="btn btn-block btn-lg btn-primary" onclick="addConsolePrinter.addComponent();">add ConsolePrinter</a>
 	</div>
@@ -106,6 +133,39 @@ var addConsolePrinter = new ComponentBtn('ConsolePrinter');
 <script type="text/javascript">
 controller.refreshMap();
 </script>
+
+
+
+<script id="componentTmpl" type="x-jquery-tmpl">
+<div class="component" id="${S}{uuid}">
+	<div class="component-title-area">
+		<b>${S}{name}</b>
+		<span style="font-size:50%;">
+			<a href="#" onclick="controller.showRenameDialog('${S}{uuid}')">[edit]</a>
+		</span>
+	</div>
+	<div class="component-body-area">
+		<hr />
+		<small>type: ${S}{type}</small><br />
+		<small>uuid: ${S}{uuid}</small>
+		<hr />
+		<div class="end-point"></div>
+	</div>
+	<div class="component-oper-area">
+		<a href="#" onclick="controller.startComponent('${S}{uuid}')">[start]</a>
+		<a href="#" onclick="controller.stopComponent('${S}{uuid}')">[stop]</a>
+		<a href="#" onclick="controller.showConfigDialog('${S}{uuid}')">[config]</a>
+	</div>
+</div>
+</script>
+
+<script id="renameTitleTmpl" type="x-jquery-tmpl">
+<div>
+	<input type="text" value="${S}{name}" style="width:120px" />
+	<a href="#" style="font-size:50%" onclick="controller.rename('${S}{uuid}')">[edit]</a>
+</div>
+</script>
+
 
 </body>
 </html>

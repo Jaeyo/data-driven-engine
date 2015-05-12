@@ -13,6 +13,7 @@ import org.jaeyo.dde.dataflow.component.conngroup.InputConnectionGroup;
 import org.jaeyo.dde.dataflow.component.conngroup.OutputRouter;
 import org.jaeyo.dde.dataflow.component.processor.impl.ConsolePrinter;
 import org.jaeyo.dde.dataflow.component.processor.impl.FileReader;
+import org.jaeyo.dde.dataflow.component.processor.impl.RandomWordGenerator;
 import org.jaeyo.dde.dataflow.component.processor.impl.SimpleDeliver;
 import org.jaeyo.dde.exception.AlreadyStartedException;
 import org.jaeyo.dde.exception.AlreadyStoppedException;
@@ -93,6 +94,8 @@ public class DataFlowService {
 			return new FileReader(UUID.randomUUID(), x, y, name, new OutputRouter());
 		} else if("SimpleDeliver".equals(type)) {
 			return new SimpleDeliver(UUID.randomUUID(), x, y, name, new InputConnectionGroup(), new OutputRouter());
+		} else if("RandomWordGenerator".equals(type)) {
+			return new RandomWordGenerator(UUID.randomUUID(), x, y, name, new OutputRouter());
 		} else{
 			throw new UnknownComponentException(type);
 		} //if

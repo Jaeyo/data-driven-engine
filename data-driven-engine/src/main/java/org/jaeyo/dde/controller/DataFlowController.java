@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jaeyo.dde.dataflow.component.Component;
+import org.jaeyo.dde.exception.AlreadyStartedException;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.jaeyo.dde.exception.UnknownComponentException;
@@ -72,12 +73,31 @@ public class DataFlowController {
 		} //catch
 	} //updateComponent
 
-	@RequestMapping(value = "/DataFlow/StartComponent/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/DataFlow/StartComponent/{id}", method = RequestMethod.PUT)
 	public @ResponseBody String startComponent(
 			@PathVariable("id") String id){
-		//TODO
-		return null;
+		try {
+			dataFlowService.startComponent(id);
+			return new JSONObject().put("success", 1).toString();
+		} catch (Exception e) {
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", 0).put("msg", msg).toString();
+		} //catch
 	} //startComponent
+	
+	@RequestMapping(value = "/DataFlow/StopComponent/{id}", method = RequestMethod.PUT)
+	public @ResponseBody String stopComponent(
+			@PathVariable("id") String id){
+		try {
+			dataFlowService.stopComponent(id);
+			return new JSONObject().put("success", 1).toString();
+		} catch (Exception e) {
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", 0).put("msg", msg).toString();
+		} //catch
+	} //stopComponent
 	
 	@RequestMapping(value = "/DataFlow/Connection/{source}/{target}", method = RequestMethod.POST)
 	public @ResponseBody String addConnection(
