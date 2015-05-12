@@ -25,10 +25,10 @@ public abstract class InProcessor extends Processor implements Input{
 	} //removeInputConnection
 	
 	@Override
-	public void job() {
+	public void onStart() {
 		for(;;)
 			onEvent(inputGroup.take());
-	} //job
-	
+	} //onStart
+
 	public abstract void onEvent(Event event);
 } //class

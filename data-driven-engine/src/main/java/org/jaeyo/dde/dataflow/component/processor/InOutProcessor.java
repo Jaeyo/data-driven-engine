@@ -49,15 +49,15 @@ public abstract class InOutProcessor extends Processor implements Input, Output{
 		return this.outputRouter;
 	} //getOutputRouter
 	
-	@Override
-	public void job() {
-		for(;;)
-			onEvent(inputGroup.take());
-	} //job
-	
 	protected void flowAway(String tag, Event event) throws NoAvailableOutputException{
 		outputRouter.flowAway(tag, event);
 	} //flowAway
 	
+	@Override
+	public void onStart() {
+		for(;;)
+			onEvent(inputGroup.take());
+	}
+
 	public abstract void onEvent(Event event);
 } //class

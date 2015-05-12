@@ -23,28 +23,6 @@ public class RandomWordGenerator extends OutProcessor{
 	} //INIT
 
 	@Override
-	public void job() {
-		for(;;){
-			try {
-				Thread.sleep(period);
-				flowAway(DEFAULT_TAG, new Event(UUID.randomUUID().toString()));
-			} catch (NoAvailableOutputException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} //for ;;
-	} //job
-
-	@Override
-	public void beforeStart() {
-	}
-
-	@Override
-	public void beforeStop() {
-	}
-
-	@Override
 	public String getComponentType() {
 		return getClass().getSimpleName();
 	}
@@ -70,4 +48,19 @@ public class RandomWordGenerator extends OutProcessor{
 		} //for entry
 	} //setConfig
 
+	@Override
+	public void onStart() {
+		try {
+			for(;;){
+				Thread.sleep(period);
+				flowAway(DEFAULT_TAG, new Event(UUID.randomUUID().toString()));
+			} //for ;;	
+		} catch (Exception e) {
+		} //catch
+	}
+
+	@Override
+	public void onStop() {
+		logger.info("RandomWordGenerator stopped");
+	} //onStop
 } //class

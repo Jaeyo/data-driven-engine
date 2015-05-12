@@ -9,9 +9,12 @@ import org.jaeyo.dde.dataflow.component.processor.InOutProcessor;
 import org.jaeyo.dde.event.Event;
 import org.jaeyo.dde.exception.NoAvailableOutputException;
 import org.jaeyo.dde.exception.UnknownConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleDeliver extends InOutProcessor {
-
+	private static final Logger logger = LoggerFactory.getLogger(SimpleDeliver.class);
+	
 	public SimpleDeliver(UUID id, int x, int y, String name, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
 		super(id, x, y, name, inputGroup, outputRouter);
 	} //INIT
@@ -26,20 +29,10 @@ public class SimpleDeliver extends InOutProcessor {
 	} //onEvent
 
 	@Override
-	public void beforeStart() {
-		System.out.println("SimpleDeliver started");
-	}
-
-	@Override
-	public void beforeStop() {
-		System.out.println("SimpleDeliver stopped");
-	}
-
-	@Override
 	public String getComponentType() {
 		return getClass().getSimpleName();
 	}
-
+	
 	@Override
 	public Properties getConfig() {
 		return new Properties();
@@ -48,4 +41,9 @@ public class SimpleDeliver extends InOutProcessor {
 	@Override
 	public void setConfig(Properties config) throws UnknownConfigException {
 	}
-}
+
+	@Override
+	public void onStop() {
+		logger.info("SimpleDeliver stopped");
+	} //onStop
+} //class

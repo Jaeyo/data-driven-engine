@@ -30,41 +30,6 @@ public class FileReader extends OutProcessor{
 	}
 
 	@Override
-	public void job() {
-		String line = null;
-		try {
-			for(;;){
-				while((line = reader.readLine()) != null){
-					flowAway(DEFAULT_TAG, new Event(line));
-				} //while
-
-				Util.sleep(100);
-			} //for ;;
-		} catch (NoAvailableOutputException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void beforeStart() {
-		System.out.println("FileReader started");
-		
-		File file = new File(path);
-		try {
-			this.reader = new BufferedReader(new java.io.FileReader(file));
-		} catch (FileNotFoundException e) {
-			logger.error(String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()));
-		} //catch
-	}
-
-	@Override
-	public void beforeStop() {
-		System.out.println("FileReader stopped");
-	}
-
-	@Override
 	public String getComponentType() {
 		return getClass().getSimpleName();
 	}
@@ -89,4 +54,36 @@ public class FileReader extends OutProcessor{
 			} //if
 		} //for entry
 	}
-}
+
+	@Override
+	public void onStart() {
+		System.out.println("FileReader started");
+		
+		File file = new File(path);
+		try {
+			this.reader = new BufferedReader(new java.io.FileReader(file));
+		} catch (FileNotFoundException e) {
+			logger.error(String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()));
+		} //catch	
+		
+		String line = null;
+		try {
+			for(;;){
+				while((line = reader.readLine()) != null){
+					flowAway(DEFAULT_TAG, new Event(line));
+				} //while
+
+				Util.sleep(100);
+			} //for ;;
+		} catch (NoAvailableOutputException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onStop() {
+		logger.info("FileReader stopped");
+	} //onStop
+} //class

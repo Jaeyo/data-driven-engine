@@ -4,6 +4,8 @@ package org.jaeyo.dde.dataflow;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.jaeyo.dde.connectionqueue.ConnectionQueue;
 import org.jaeyo.dde.connectionqueue.MemoryConnectionQueue;
@@ -25,13 +27,14 @@ import com.google.common.collect.Maps;
 @Service
 public class Dataflow{
 	private Map<UUID, Component> components = Maps.newHashMap();
+	private final ExecutorService threadPool = Executors.newFixedThreadPool(40);
 	
 	public void addComponent(Component component){
 		components.put(component.getId(), component);
 	} //addComponent
 	
-	public void startComponent(UUID id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{
-		getProcessorComponent(id).start();
+	public void startComponent(final UUID id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{
+		threadPool.execute(getProcessorComponent(id));
 	} //startCompnent
 	
 	public void stopComponent(UUID id) throws AlreadyStoppedException, InvalidOperationException, NotExistsException{

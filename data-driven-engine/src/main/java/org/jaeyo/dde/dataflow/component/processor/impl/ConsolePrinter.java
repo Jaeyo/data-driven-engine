@@ -7,8 +7,12 @@ import org.jaeyo.dde.dataflow.component.conngroup.InputConnectionGroup;
 import org.jaeyo.dde.dataflow.component.processor.InProcessor;
 import org.jaeyo.dde.event.Event;
 import org.jaeyo.dde.exception.UnknownConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsolePrinter extends InProcessor{
+	private static final Logger logger = LoggerFactory.getLogger(ConsolePrinter.class);
+	
 	public ConsolePrinter(UUID id, int x, int y, String name, InputConnectionGroup inputGroup) {
 		super(id, x, y, name, inputGroup);
 	}
@@ -16,16 +20,6 @@ public class ConsolePrinter extends InProcessor{
 	@Override
 	public void onEvent(Event event) {
 		System.out.println(event.getPayload());
-	}
-
-	@Override
-	public void beforeStart() {
-		System.out.println("ConsolePrinter started");
-	}
-
-	@Override
-	public void beforeStop() {
-		System.out.println("ConsolePrinter stopped");
 	}
 
 	@Override
@@ -41,4 +35,9 @@ public class ConsolePrinter extends InProcessor{
 	@Override
 	public void setConfig(Properties config) throws UnknownConfigException {
 	}
+
+	@Override
+	public void onStop() {
+		logger.info("ConsolePrinter stopped");
+	} //onStop
 } //class
