@@ -9,12 +9,12 @@ import org.jaeyo.dde.dataflow.component.conngroup.OutputRouter;
 import org.jaeyo.dde.event.Event;
 import org.jaeyo.dde.exception.NoAvailableOutputException;
 
-public abstract class InOutProcessor extends Processor implements Input, Output{
+public abstract class InOutProcessor extends Component implements Input, Output{
 	private InputConnectionGroup inputGroup; 
 	private OutputRouter outputRouter;
 	
 	public InOutProcessor(UUID id, int x, int y, String name, InputConnectionGroup inputGroup, OutputRouter outputRouter) {
-		super(id, x, y, name);
+		super(x, y, name, id);
 		this.inputGroup = inputGroup;
 		this.outputRouter = outputRouter;
 	} //INIT

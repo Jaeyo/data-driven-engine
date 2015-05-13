@@ -12,7 +12,6 @@ import org.jaeyo.dde.connectionqueue.MemoryConnectionQueue;
 import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.dataflow.component.processor.Input;
 import org.jaeyo.dde.dataflow.component.processor.Output;
-import org.jaeyo.dde.dataflow.component.processor.Processor;
 import org.jaeyo.dde.exception.AlreadyStartedException;
 import org.jaeyo.dde.exception.AlreadyStoppedException;
 import org.jaeyo.dde.exception.InvalidOperationException;
@@ -34,11 +33,11 @@ public class Dataflow{
 	} //addComponent
 	
 	public void startComponent(final UUID id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{
-		threadPool.execute(getProcessorComponent(id));
+		threadPool.execute(getComponent(id));
 	} //startCompnent
 	
 	public void stopComponent(UUID id) throws AlreadyStoppedException, InvalidOperationException, NotExistsException{
-		getProcessorComponent(id).stop();
+		getComponent(id).stop();
 	} //stopComponent
 	
 	public ConnectionQueue connect(UUID source, UUID target) throws NotExistsException, InvalidOperationException{
@@ -87,18 +86,6 @@ public class Dataflow{
 		
 		return new JSONObject().put("components", componentsJson).put("lines", linesJson);
 	} //getDataFlowMapJson
-	
-	private Processor getProcessorComponent(UUID id) throws InvalidOperationException, NotExistsException{
-		Component component = getComponent(id);
-		
-		try {
-			Preconditions.checkState(component instanceof Processor, "invalid processor component, " + id.toString());
-		} catch (IllegalStateException e) {
-			throw new InvalidOperationException(e.getMessage());
-		} //catch
-		
-		return (Processor)component;
-	} //getProcessorComponent
 	
 	private Input getInComponent(UUID id) throws NotExistsException, InvalidOperationException{
 		Component component = getComponent(id);

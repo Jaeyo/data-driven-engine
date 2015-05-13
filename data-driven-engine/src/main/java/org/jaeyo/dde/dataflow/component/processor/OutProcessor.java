@@ -8,11 +8,11 @@ import org.jaeyo.dde.dataflow.component.conngroup.OutputRouter;
 import org.jaeyo.dde.event.Event;
 import org.jaeyo.dde.exception.NoAvailableOutputException;
 
-public abstract class OutProcessor extends Processor implements Output{
+public abstract class OutProcessor extends Component implements Output{
 	private OutputRouter outputRouter;
 
 	public OutProcessor(UUID id, int x, int y, String name, OutputRouter outputRouter) {
-		super(id, x, y, name);
+		super(x, y, name, id);
 		this.outputRouter = outputRouter;
 	} //INIT
 	

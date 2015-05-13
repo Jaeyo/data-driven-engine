@@ -104,6 +104,11 @@ hr {
 	-moz-transition: -moz-box-shadow 0.25s ease-in;
 	transition: box-shadow 0.25s ease-in;
 }
+
+.icon {
+	width: 15px;
+	height: 15px;
+}
 </style>
 
 </head>
@@ -140,9 +145,9 @@ controller.refreshMap();
 <div class="component" id="${S}{uuid}">
 	<div class="component-title-area">
 		<b>${S}{name}</b>
-		<span style="font-size:50%;">
-			<a href="#" onclick="controller.showRenameDialog('${S}{uuid}')">[edit]</a>
-		</span>
+		<a href="#" onclick="controller.showRenameDialog('${S}{uuid}')">
+			<img class="icon" src="/resource/icon/edit.png" />
+		</a>
 	</div>
 	<div class="component-body-area">
 		<hr />
@@ -162,7 +167,9 @@ controller.refreshMap();
 <script id="renameTitleTmpl" type="x-jquery-tmpl">
 <div>
 	<input type="text" value="${S}{name}" style="width:120px" />
-	<a href="#" style="font-size:50%" onclick="controller.rename('${S}{uuid}')">[edit]</a>
+	<a href="#" style="font-size:50%" onclick="controller.rename('${S}{uuid}')">
+		<img class="icon" src="/resource/icon/ok.png" />
+	</a>
 </div>
 </script>
 

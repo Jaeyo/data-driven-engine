@@ -35,7 +35,7 @@ public class DataFlowController {
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ModelAndView main(){
-		return new ModelAndView("home");
+		return new ModelAndView("home2");
 	} //INIT
 	
 	@RequestMapping(value = "/DataFlow/Component/{type}", method = RequestMethod.POST)
@@ -43,7 +43,7 @@ public class DataFlowController {
 			@PathVariable("type") String type,
 			@RequestParam("name") String name) {
 		try {
-			Component component = dataFlowService.createNewComponent(type, name, 0, 0); //TODO IMME
+			Component component = dataFlowService.createNewComponent(type, name, 0, 0);
 			JSONObject retJson = new JSONObject();
 			retJson.put("success", 1);
 			retJson.put("component", component.getJson());

@@ -412,38 +412,6 @@ Component.prototype = {
 
 //-------------------------------------------------------------------------------------
 
-ComponentRenameDialog = function(){};
-ComponentRenameDialog.prototype = {
-	show: function(uuid, oldName){
-		var html = 
-			'<div class="component-rename-dialog">'+
-			'<label>name</label><br />'+
-			'<input id="renameInput" type="text" style="width:300px;" value="'+oldName+'" />'+
-			'</div>';
-		var dialog = null;
-		dialog = $(html).dialog({
-			autoOpen: false,
-			height: 300,
-			width: 350,
-			modal: true,
-			buttons: {
-				"OK": function(){
-					var newName = $("#renameInput").val();
-					serverAdapter.rename(uuid, newName);
-					controller.refreshMap();
-					dialog.dialog("destroy").remove();
-				},
-				"Cancel": function(){
-					dialog.dialog("destroy").remove();
-				}
-			} //buttons
-		});
-		dialog.dialog("open");
-	} //show
-};
-
-//-------------------------------------------------------------------------------------
-
 ComponentConfigDialog = function(){ };
 ComponentConfigDialog.prototype = {
 	show: function(uuid){
