@@ -1,6 +1,7 @@
 package org.jaeyo.dde.dataflow;
 
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -11,9 +12,11 @@ import org.jaeyo.dde.connectionqueue.ConnectionQueue;
 import org.jaeyo.dde.connectionqueue.MemoryConnectionQueue;
 import org.jaeyo.dde.dataflow.component.Component;
 import org.jaeyo.dde.dataflow.component.processor.Input;
+import org.jaeyo.dde.dataflow.component.processor.OutProcessor;
 import org.jaeyo.dde.dataflow.component.processor.Output;
 import org.jaeyo.dde.exception.AlreadyStartedException;
 import org.jaeyo.dde.exception.AlreadyStoppedException;
+import org.jaeyo.dde.exception.ConnectionExistsException;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.json.JSONArray;
@@ -33,12 +36,32 @@ public class Dataflow{
 	} //addComponent
 	
 	public void startComponent(final UUID id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{
-		threadPool.execute(getComponent(id));
+		Component cpnt = getComponent(id);
+		if(cpnt.isStarted())
+			throw new AlreadyStartedException();
+		threadPool.execute(cpnt);
 	} //startCompnent
 	
 	public void stopComponent(UUID id) throws AlreadyStoppedException, InvalidOperationException, NotExistsException{
 		getComponent(id).stop();
 	} //stopComponent
+	
+	public void removeCompoent(UUID id) throws NotExistsException, ConnectionExistsException{
+		Component cpnt = getComponent(id);
+		if(cpnt instanceof Output){
+			Output outCpnt = (Output) cpnt;
+			Set<ConnectionQueue> conns = outCpnt.getOutputRouter().getOutputConnections();
+			if(conns != null && conns.size() != 0)
+				throw new ConnectionExistsException(id.toString());
+		} else if(cpnt instanceof Input){
+			Input inCpnt = (Input) cpnt;
+			List<ConnectionQueue> conns = inCpnt.getInputConnectionGroup().getInputConnections();
+			if(conns != null && conns.size() != 0)
+				throw new ConnectionExistsException(id.toString());
+		} //if
+		
+		components.remove(id);
+	} //removeComponent
 	
 	public ConnectionQueue connect(UUID source, UUID target) throws NotExistsException, InvalidOperationException{
 		Output sourceComponent = getOutComponent(source);

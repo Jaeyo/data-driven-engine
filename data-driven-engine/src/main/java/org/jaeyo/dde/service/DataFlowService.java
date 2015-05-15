@@ -17,17 +17,21 @@ import org.jaeyo.dde.dataflow.component.processor.impl.RandomWordGenerator;
 import org.jaeyo.dde.dataflow.component.processor.impl.SimpleDeliver;
 import org.jaeyo.dde.exception.AlreadyStartedException;
 import org.jaeyo.dde.exception.AlreadyStoppedException;
+import org.jaeyo.dde.exception.ConnectionExistsException;
 import org.jaeyo.dde.exception.InvalidOperationException;
 import org.jaeyo.dde.exception.NotExistsException;
 import org.jaeyo.dde.exception.UnknownComponentException;
 import org.jaeyo.dde.exception.UnknownConfigException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DataFlowService {
 	@Inject
 	private Dataflow dataFlow;
+	private static final Logger logger = LoggerFactory.getLogger(DataFlowService.class);
 	
 	public Component createNewComponent(String type, String name, int x, int y) throws UnknownComponentException {
 		Component component = createNewComponentInstance(type, name, x, y);
@@ -46,12 +50,19 @@ public class DataFlowService {
 	} //updateComponent
 	
 	public void startComponent(String id) throws NotExistsException, InvalidOperationException, AlreadyStartedException{
+		logger.info("component with uuid {} will be started", id);
 		dataFlow.startComponent(UUID.fromString(id));
 	} //startCompnent
 	
 	public void stopComponent(String id) throws AlreadyStoppedException, InvalidOperationException, NotExistsException{
+		logger.info("component with uuid {} will be stopped", id);
 		dataFlow.stopComponent(UUID.fromString(id));
 	} //stopComponent
+	
+	public void removeComponent(String id) throws NotExistsException, ConnectionExistsException{
+		logger.info("component with uuid {} will be removed", id);
+		dataFlow.removeCompoent(UUID.fromString(id));
+	} //removeComponent
 	
 	public void createNewConnection(String source, String target) throws NotExistsException, InvalidOperationException{
 		dataFlow.connect(UUID.fromString(source), UUID.fromString(target));

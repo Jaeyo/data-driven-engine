@@ -28,7 +28,7 @@ ComponentView.prototype = {
 
 Component = function(name, type, uuid, x, y, inputable, outputable, started){
 	this.model = new ComponentModel(name, type, uuid, x, y, inputable, outputable, started);
-	this.view = new ComponentView(name, type, uuid);
+	this.view = new ComponentView(name, type, uuid, started);
 }; //INIT
 Component.prototype = {
 		

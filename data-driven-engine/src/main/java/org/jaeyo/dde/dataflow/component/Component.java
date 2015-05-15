@@ -57,6 +57,14 @@ public abstract class Component implements Runnable{
 		return id;
 	}
 	
+	public boolean isStarted() {
+		return isStarted;
+	}
+
+	public void setStarted(boolean isStarted) {
+		this.isStarted = isStarted;
+	}
+
 	@Override
 	public void run() {
 		isStarted = true;
@@ -71,6 +79,7 @@ public abstract class Component implements Runnable{
 	
 	public void stop(){
 		onStop();
+		isStarted = false;
 		this.worker.interrupt();
 	} //stop
 

@@ -88,8 +88,7 @@ ServerAdapter.prototype = {
 			data: data,
 			success: onSuccess,
 			error: function(e){
-				console.log('error');
-				console.log(e);
+				handleError(e);
 			}
 		});
 	}, //ajaxCall
@@ -98,14 +97,15 @@ ServerAdapter.prototype = {
 	}, //addNewComponent
 	updateComponent: function(uuid, x, y){
 		this.ajaxCall('/DataFlow/Component/' + uuid, 'put', {x: x, y: y}, function(response){
+			if(response.success != 1)
+				handleError(response);
 			//do nothing
 		});
 	}, //updateComponent
 	startComponent: function(uuid){
 		this.ajaxCall('/DataFlow/StartComponent/' + uuid, 'put', {}, function(response){
 			if(response.success != 1){
-				console.log('error');
-				console.log(response);
+				handleError(response);
 				return;
 			} //if
 		});
@@ -113,20 +113,21 @@ ServerAdapter.prototype = {
 	stopComponent: function(uuid){
 		this.ajaxCall('/DataFlow/StopComponent/' + uuid, 'put', {}, function(response){
 			if(response.success != 1){
-				console.log('error');
-				console.log(response);
+				handleError(response);
 				return;
 			} //if
 		});
 	}, //stopComponent
+	removeComponent: function(uuid, onSuccess){
+		this.ajaxCall('/DataFlow/RemoveComponent/' + uuid, 'delete', {}, onSuccess);
+	}, //removeComponent
 	addConnection: function(sourceId, targetId, onSuccess){
 		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'post', {}, onSuccess);
 	}, //addConnection
 	removeConnection: function(sourceId, targetId){
 		this.ajaxCall('/DataFlow/Connection/' + sourceId + '/' + targetId, 'delete', {}, function(response){
 			if(response.success != 1){
-				console.log('error');
-				console.log(response);
+				handleError(response);
 				return;
 			} //if
 		});
@@ -228,6 +229,30 @@ Controller.prototype = {
 			controller.view.showComponent(cpnt);
 		});
 	}, //addNewComponent
+	removeComponent: function(uuid){
+		var cpnt = this.model.getComponent(uuid);
+		if(cpnt.model.started == true){
+			$("#btnRemoveComponent").notify("started component cannot be removed", "error");
+			return;
+		} //if
+		
+		serverAdapter.removeComponent(uuid, function(resp){
+			if(resp.success != 1){
+				handleError(resp);
+				$("#btnRemoveComponent").notify(resp.msg, "error");
+				return;
+			} //if
+			controller.refreshMap();
+		});
+	}, //removeComponent
+	startComponent: function(uuid){
+		serverAdapter.startComponent(uuid);
+		this.refreshMap();
+	}, //startComponent
+	stopComponent: function(uuid){
+		serverAdapter.stopComponent(uuid);
+		this.refreshMap();
+	}, //stopComponent
 	refreshMap: function(){
 		$(".component-container").empty();
 		this.model = new Model();

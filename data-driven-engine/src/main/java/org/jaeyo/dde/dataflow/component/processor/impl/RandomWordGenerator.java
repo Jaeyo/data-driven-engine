@@ -56,6 +56,7 @@ public class RandomWordGenerator extends OutProcessor{
 				flowAway(DEFAULT_TAG, new Event(UUID.randomUUID().toString()));
 			} //for ;;	
 		} catch (Exception e) {
+			logger.error(String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		} //catch
 	}
 

@@ -14,6 +14,11 @@ public abstract class InProcessor extends Component implements Input{
 		super(x, y, name, id);
 		this.inputGroup = inputGroup;
 	}
+	
+	@Override
+	public InputConnectionGroup getInputConnectionGroup() {
+		return inputGroup;
+	} //getInputConnectionGroup
 
 	@Override
 	public void addInputConnection(ConnectionQueue conn){

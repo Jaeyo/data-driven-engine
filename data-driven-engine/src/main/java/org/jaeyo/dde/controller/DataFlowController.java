@@ -99,6 +99,19 @@ public class DataFlowController {
 		} //catch
 	} //stopComponent
 	
+	@RequestMapping(value = "/DataFlow/RemoveComponent/{id}", method = RequestMethod.DELETE)
+	public @ResponseBody String removeComponent(
+			@PathVariable("id") String id){
+		try{
+			dataFlowService.removeComponent(id);
+			return new JSONObject().put("success", 1).toString();
+		} catch(Exception e){
+			String msg = String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(msg, e);
+			return new JSONObject().put("success", 0).put("msg", msg).toString();
+		} //catch
+	} //removeComponent
+	
 	@RequestMapping(value = "/DataFlow/Connection/{source}/{target}", method = RequestMethod.POST)
 	public @ResponseBody String addConnection(
 			@PathVariable("source") String source, 

@@ -19,6 +19,10 @@ public class InputConnectionGroup {
 		inputs.remove(conn);
 	} //removeInputConnection
 
+	public List<ConnectionQueue> getInputConnections(){
+		return this.inputs;
+	} //getInputConns
+
 	public Event take(){
 		for(;;){
 			for (ConnectionQueue input : inputs)

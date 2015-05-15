@@ -23,6 +23,8 @@
 
 <script src="/resource/js/lib/js_cols.min.js"></script>
 
+<script src="/resource/js/lib/notify.min.js"></script>
+
 <script src="/resource/js/common.js"></script>
 <script src="/resource/js/component.js"></script>
 <link rel="stylesheet" href="/resource/css/home2.css" />
@@ -73,8 +75,8 @@ controller.refreshMap();
 	<hr />
 	<div class="component-oper-area">
 		<a href="#" onclick="controller.viewConfig('${S}{uuid}')"><img class="icon" src="/resource/icon/config.png" /></a>
-		<a href="#"><img class="icon" src="/resource/icon/start.png" /></a>
-		<a href="#"><img class="icon" src="/resource/icon/stop.png" /></a>
+		<a href="#" onclick="controller.startComponent('${S}{uuid}')"><img class="icon" src="/resource/icon/start.png" /></a>
+		<a href="#" onclick="controller.stopComponent('${S}{uuid}')"><img class="icon" src="/resource/icon/stop.png" /></a>
 	</div>
 </div>
 </script>
@@ -90,6 +92,7 @@ controller.refreshMap();
 		<br />
 		<a href="#" class="button button-border menu-button" onclick="controller.setConfig('${S}{uuid}')">OK</a>
 	{{/if}}
+	<a href="#" id="btnRemoveComponent" onclick="controller.removeComponent('${S}{uuid}')"><img class="icon" src="/resource/icon/remove.png" /></a>
 </div>
 </script>
 

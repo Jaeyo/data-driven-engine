@@ -45,6 +45,11 @@ public abstract class InOutProcessor extends Component implements Input, Output{
 	} //removeOutputConnection
 	
 	@Override
+	public InputConnectionGroup getInputConnectionGroup() {
+		return this.inputGroup;
+	} //getInputConnectionGroup
+
+	@Override
 	public OutputRouter getOutputRouter(){
 		return this.outputRouter;
 	} //getOutputRouter
