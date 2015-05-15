@@ -4,13 +4,16 @@
     xmlns:mvc="http://www.springframework.org/schema/mvc"
     xmlns:p="http://www.springframework.org/schema/p"
     xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:websocket="http://www.springframework.org/schema/websocket"
     xsi:schemaLocation="
     	http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/mvc 
-		http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/websocket
+        http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd">
 
 	<mvc:annotation-driven />
 
@@ -19,12 +22,19 @@
 	<context:component-scan base-package="org.jaeyo.dde.service" />
 	<context:component-scan base-package="org.jaeyo.dde.controller" />
 	
+	<bean id="echoHandler" class="org.jaeyo.dde.websocket.EchoHandler" />
+	
 	<mvc:resources location="/resource/" mapping="/resource/**" />
 	
+	<websocket:handlers>
+		<websocket:mapping handler="echoHandler" path="/ws"/>
+		<websocket:sockjs />
+	</websocket:handlers>
+	
 	<bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-        <property name="prefixJson" value="false"/>
-        <property name="supportedMediaTypes" value="application/json"/>
-    </bean>
+		<property name="prefixJson" value="false"/>
+		<property name="supportedMediaTypes" value="application/json"/>
+	</bean>
 
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">

@@ -15,6 +15,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 
 <link rel="stylesheet" href="/resource/css/buttons.css" />
 <script src="/resource/js/lib/buttons.js"></script>
