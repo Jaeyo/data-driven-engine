@@ -15,7 +15,6 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
-<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 
 <link rel="stylesheet" href="/resource/css/buttons.css" />
 <script src="/resource/js/lib/buttons.js"></script>
@@ -26,8 +25,11 @@
 
 <script src="/resource/js/lib/notify.min.js"></script>
 
+<script src="/resource/js/lib/sockjs-0.3.4.min.js"></script>
+
 <script src="/resource/js/common.js"></script>
 <script src="/resource/js/component.js"></script>
+<script src="/resource/js/websocket.js"></script>
 <link rel="stylesheet" href="/resource/css/home2.css" />
 
 </head>
@@ -78,8 +80,16 @@ controller.refreshMap();
 		<a href="#" onclick="controller.viewConfig('${S}{uuid}')"><img class="icon" src="/resource/icon/config.png" /></a>
 		<a href="#" onclick="controller.startComponent('${S}{uuid}')"><img class="icon" src="/resource/icon/start.png" /></a>
 		<a href="#" onclick="controller.stopComponent('${S}{uuid}')"><img class="icon" src="/resource/icon/stop.png" /></a>
+		<a href="#" onclick="controller.toggleComponentOutput('${S}{uuid}')">viewOutput</a>
+	</div>
+	<div class="component-output-area">
 	</div>
 </div>
+</script>
+
+
+<script id="componentOutputTmpl" type="x-jquery-tmpl">
+<textarea class="component-output" rows=8 cols=40></textarea>
 </script>
 
 

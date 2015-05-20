@@ -317,5 +317,8 @@ Controller.prototype = {
 	rename: function(uuid){
 		var newName = $("#menuContainerBottom").find("input").val();
 		serverAdapter.rename(uuid, newName);
-	} //rename
+	}, //rename
+	toggleComponentOutput: function(uuid){
+		this.model.getComponent(uuid).toggleOutput();
+	} //viewOutputOfComponent
 }; //Controller

@@ -22,12 +22,12 @@
 	<context:component-scan base-package="org.jaeyo.dde.service" />
 	<context:component-scan base-package="org.jaeyo.dde.controller" />
 	
-	<bean id="echoHandler" class="org.jaeyo.dde.websocket.EchoHandler" />
+	<bean id="componentOutputHandler" class="org.jaeyo.dde.websocket.ComponentOutputHandler" />
 	
 	<mvc:resources location="/resource/" mapping="/resource/**" />
 	
 	<websocket:handlers>
-		<websocket:mapping handler="echoHandler" path="/ws"/>
+		<websocket:mapping handler="componentOutputHandler" path="/ComponentOutput" />
 		<websocket:sockjs />
 	</websocket:handlers>
 	
