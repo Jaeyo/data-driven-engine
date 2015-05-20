@@ -1,13 +1,16 @@
-WebSocket = function(){
+WebSocketAdapter = function(){
 }; //INIT
-WebSocket.prototype = {
+WebSocketAdapter.prototype = {
 	listenComponentOutput: function(uuid, onMsg){
-		this.sock = new SockJS("/ComponentOutput");
+		this.sock = new SockJS("/ComponentOutput", {});
 		this.sock.onmessage = onMsg;
+		this.sock.onopen = function(){
+			console.log("websocket with uuid " + uuid + " opened");
+			this.send(uuid);
+		} //open
 		this.sock.onclose = function(){
 			console.log("websocket ComponentOutput with uuid " + uuid + " has closed");
 		};
-		this.sock.send(uuid);
 	}, //listenComponentOutput
 	close: function(){
 		this.sock.close();

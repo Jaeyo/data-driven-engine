@@ -25,7 +25,10 @@
 
 <script src="/resource/js/lib/notify.min.js"></script>
 
+<!--  
 <script src="/resource/js/lib/sockjs-0.3.4.min.js"></script>
+-->
+<script src="http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
 
 <script src="/resource/js/common.js"></script>
 <script src="/resource/js/component.js"></script>

@@ -27,7 +27,7 @@
 	<mvc:resources location="/resource/" mapping="/resource/**" />
 	
 	<websocket:handlers>
-		<websocket:mapping handler="componentOutputHandler" path="/ComponentOutput" />
+		<websocket:mapping handler="componentOutputHandler" path="/ComponentOutput/*" />
 		<websocket:sockjs />
 	</websocket:handlers>
 	

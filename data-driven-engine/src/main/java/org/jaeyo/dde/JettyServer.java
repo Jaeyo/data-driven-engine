@@ -10,6 +10,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jaeyo.dde.common.Conf;
 import org.jaeyo.dde.common.Path;
+import org.jaeyo.dde.common.SpringBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -25,9 +26,12 @@ public class JettyServer {
 		try {
 			enableJstl();
 			int port = Conf.getAs(Conf.PORT);
+			
+			WebAppContext context = getWebAppContext();
+			SpringBeans.setContext(context);
+			
 			server = new Server(port);
-//			server.setHandler(getServletHandler()); 
-			server.setHandler(getWebAppContext());
+			server.setHandler(context);
 			server.start();
 		} catch (NumberFormatException e) {
 			logger.error("invalid port : {}", Conf.get(Conf.PORT), e);
